@@ -45,6 +45,9 @@ ENDIF()
 #########################
 if (WIN32)
     set(LEXBOR_OS_PORT_NAME "windows_nt")
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Generic")
+    # ESP32 and other embedded systems
+    set(LEXBOR_OS_PORT_NAME "esp32")
 else ()
     set(LEXBOR_OS_PORT_NAME "posix")
 endif (WIN32)
