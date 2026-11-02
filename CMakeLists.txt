@@ -10,9 +10,16 @@ cmake_minimum_required(VERSION 2.8.12...3.27)
 #    LEXBOR_BUILD_STATIC                 default: ON; Create static library
 #    LEXBOR_BUILD_SEPARATELY             default: OFF; Build all modules separately.
 #                                         Each module will have its own shared library
+#    LEXBOR_BUILD_WASM                   default: OFF; Build WASM modules (requires Emscripten)
+#    LEXBOR_WASM_INSTALL_DIR             default: "share/lexbor/wasm"; Install directory for WASM files
 #    LEXBOR_BUILD_EXAMPLES               default: OFF; Build all examples
 #    LEXBOR_BUILD_TESTS                  default: OFF; Build tests
 #    LEXBOR_BUILD_TESTS_CPP              default: OFF; Build C++ tests.
+#                                         Used with LEXBOR_BUILD_TESTS
+#    LEXBOR_ENABLE_TEST_HTML_WPT         default: OFF; Enable WPT HTML tree
+#                                         construction tests. Used with
+#                                         LEXBOR_BUILD_TESTS
+#    LEXBOR_TEST_AMALGAMATION            default: OFF; Testing all modules to create a single header file.
 #                                         Used with LEXBOR_BUILD_TESTS
 #    LEXBOR_BUILD_BENCHMARKS             default: OFF; Build benchmarks.
 #    LEXBOR_BUILD_UTILS                  default: OFF; Build utils/helpers for project.
@@ -48,9 +55,12 @@ option(LEXBOR_WITHOUT_THREADS "Build without Threads" ON)
 option(LEXBOR_BUILD_SHARED "Build shared library" ON)
 option(LEXBOR_BUILD_STATIC "Build static library" ON)
 option(LEXBOR_BUILD_SEPARATELY "Build modules separately" OFF)
+option(LEXBOR_BUILD_WASM "Build WASM modules (requires Emscripten)" OFF)
 option(LEXBOR_BUILD_EXAMPLES "Build examples" OFF)
 option(LEXBOR_BUILD_TESTS "Build tests" OFF)
 option(LEXBOR_BUILD_TESTS_CPP "Build C++ tests" OFF)
+option(LEXBOR_ENABLE_TEST_HTML_WPT "Enable WPT HTML tree construction tests" OFF)
+option(LEXBOR_TEST_AMALGAMATION "Testing all modules to create a single header file" OFF)
 option(LEXBOR_BUILD_UTILS "Build utils" OFF)
 option(LEXBOR_BUILD_BENCHMARKS "Build with benchmarks" OFF)
 option(LEXBOR_BUILD_WITH_ASAN "Build with address sanitizer" OFF)
@@ -60,6 +70,8 @@ option(LEXBOR_INSTALL_HEADERS "Install header files" ON)
 option(LEXBOR_WITH_PERF "Enables support for rdtsc." OFF)
 option(LEXBOR_MAKE_PACKAGES_FILES "Create files for build packages" OFF)
 option(LEXBOR_PRINT_MODULE_DEPENDENCIES "Prints dependencies" OFF)
+
+set(LEXBOR_WASM_INSTALL_DIR "share/lexbor/wasm" CACHE STRING "Install directory for WASM files")
 
 IF(NOT LEXBOR_MAKE_DISTRO_NUM)
     set(LEXBOR_MAKE_DISTRO_NUM "1")
@@ -90,8 +102,6 @@ set(LEXBOR_DIR_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "")
 
 set(LEXBOR_VERSION_FILEPATH "${CMAKE_CURRENT_SOURCE_DIR}/version" CACHE STRING "")
 
-set(LEXBOR_INSTALL_DLL_EXE_DIR "bin")
-
 ################
 ## Policy
 #########################
@@ -100,21 +110,12 @@ IF(CMAKE_VERSION VERSION_GREATER "3.1" OR CMAKE_VERSION VERSION_EQUAL "3.1")
 ENDIF()
 
 ################
-## RPATH
+## Install directories and RPATH
 #########################
+include(GNUInstallDirs)
+
 IF(APPLE)
     set(CMAKE_MACOSX_RPATH ON)
-
-    set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_FULL_LIBDIR})
-ELSEIF(UNIX)
-    include(GNUInstallDirs)
-ENDIF()
-
-################
-## lib param
-#########################
-IF(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR "lib")
 ENDIF()
 
 ################
@@ -195,13 +196,23 @@ ENDFOREACH()
 ## First, need to add target for shared and static library
 IF(LEXBOR_BUILD_SHARED)
     add_library(${LEXBOR_LIB_NAME} SHARED ${LEXBOR_SOURCES})
-    target_include_directories(${LEXBOR_LIB_NAME} PUBLIC ${LEXBOR_SOURCE})
+    if(UNIX)
+        set_target_properties(${LEXBOR_LIB_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR} VERSION ${PROJECT_VERSION})
+    endif()
+    if (WIN32)
+        if (NOT CMAKE_VERSION VERSION_LESS "3.27")
+            set_target_properties(${LEXBOR_LIB_NAME} PROPERTIES DLL_NAME_WITH_SOVERSION 1)
+        endif()
+    endif()
+    target_include_directories(${LEXBOR_LIB_NAME} PUBLIC $<BUILD_INTERFACE:${LEXBOR_SOURCE}>
+                                                         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     target_compile_definitions(${LEXBOR_LIB_NAME} PRIVATE "LEXBOR_BUILDING")
 ENDIF()
 
 IF(LEXBOR_BUILD_STATIC)
     add_library(${LEXBOR_LIB_NAME_STATIC} STATIC ${LEXBOR_SOURCES})
-    target_include_directories(${LEXBOR_LIB_NAME_STATIC} PUBLIC ${LEXBOR_SOURCE})
+    target_include_directories(${LEXBOR_LIB_NAME_STATIC} PUBLIC $<BUILD_INTERFACE:${LEXBOR_SOURCE}>
+                                                                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     set_target_properties(${LEXBOR_LIB_NAME_STATIC} PROPERTIES OUTPUT_NAME ${LEXBOR_LIB_NAME_STATIC})
     set_target_properties(${LEXBOR_LIB_NAME_STATIC} PROPERTIES
         COMPILE_PDB_NAME "${LEXBOR_LIB_NAME_STATIC}"
@@ -319,8 +330,51 @@ IF(${LEXBOR_HAVE_FUZZER})
 ENDIF()
 
 ################
+## WASM
+#########################
+IF(LEXBOR_BUILD_WASM)
+    message(STATUS "WASM build: enabled.")
+
+    IF(LEXBOR_BUILD_SHARED)
+        set(LEXBOR_BUILD_SHARED OFF)
+        message(STATUS "WASM: set LEXBOR_BUILD_SHARED to OFF.")
+    ENDIF()
+
+    IF(NOT LEXBOR_BUILD_STATIC)
+        set(LEXBOR_BUILD_STATIC ON)
+        message(STATUS "WASM: set LEXBOR_BUILD_STATIC to ON.")
+    ENDIF()
+
+    IF(LEXBOR_BUILD_TESTS)
+        set(LEXBOR_BUILD_TESTS OFF)
+        message(STATUS "WASM: set LEXBOR_BUILD_TESTS to OFF.")
+    ENDIF()
+
+    IF(LEXBOR_BUILD_EXAMPLES)
+        set(LEXBOR_BUILD_EXAMPLES OFF)
+        message(STATUS "WASM: set LEXBOR_BUILD_EXAMPLES to OFF.")
+    ENDIF()
+
+    IF(LEXBOR_BUILD_UTILS)
+        set(LEXBOR_BUILD_UTILS OFF)
+        message(STATUS "WASM: set LEXBOR_BUILD_UTILS to OFF.")
+    ENDIF()
+
+    IF(LEXBOR_BUILD_BENCHMARKS)
+        set(LEXBOR_BUILD_BENCHMARKS OFF)
+        message(STATUS "WASM: set LEXBOR_BUILD_BENCHMARKS to OFF.")
+    ENDIF()
+
+    add_subdirectory(wasm)
+ENDIF()
+
+################
 ## Tests
 #########################
+IF(LEXBOR_ENABLE_TEST_HTML_WPT AND NOT LEXBOR_BUILD_TESTS)
+    message(FATAL_ERROR "LEXBOR_ENABLE_TEST_HTML_WPT requires LEXBOR_BUILD_TESTS=ON.")
+ENDIF()
+
 IF(LEXBOR_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
@@ -345,6 +399,54 @@ ENDIF()
 #########################
 IF(LEXBOR_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
+ENDIF()
+
+################
+## CMake target export
+#########################
+IF(NOT LEXBOR_BUILD_WASM)
+    include("CMakePackageConfigHelpers")
+
+    install(
+        EXPORT "${PROJECT_NAME}-export"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/"
+        FILE "${PROJECT_NAME}-targets.cmake"
+        NAMESPACE "${PROJECT_NAME}::")
+
+    configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}-config.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/")
+
+    write_basic_package_version_file(
+        "${PROJECT_NAME}-config-version.cmake"
+        COMPATIBILITY SameMajorVersion
+        VERSION "${LEXBOR_VERSION_STRING}")
+
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+                  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/")
+
+################
+## pkg-config configuration
+#########################
+    FOREACH(dir LIBDIR INCLUDEDIR)
+        IF(IS_ABSOLUTE "${CMAKE_INSTALL_${dir}}")
+            set(LEXBOR_PC_${dir} "${CMAKE_INSTALL_${dir}}")
+        ELSE()
+            set(LEXBOR_PC_${dir} "\${prefix}/${CMAKE_INSTALL_${dir}}")
+        ENDIF()
+    ENDFOREACH()
+
+    configure_file(
+      "${PROJECT_SOURCE_DIR}/lexbor.pc.in"
+      "${PROJECT_BINARY_DIR}/lexbor.pc"
+      @ONLY
+    )
+    install(
+      FILES "${PROJECT_BINARY_DIR}/lexbor.pc"
+      DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+    )
 ENDIF()
 
 ################

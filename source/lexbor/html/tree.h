@@ -63,6 +63,15 @@ struct lxb_html_tree {
     lxb_status_t                   status;
 
     size_t                         ref_count;
+
+    /*
+     * For each entry of open_elements: whether the stack up to and including
+     * that entry has a p element in button scope.  Entries below p_scope_valid
+     * are up to date.
+     */
+    bool                           *p_scope;
+    size_t                         p_scope_size;
+    size_t                         p_scope_valid;
 };
 
 typedef enum {
@@ -154,6 +163,11 @@ LXB_API lxb_dom_comment_t *
 lxb_html_tree_insert_comment(lxb_html_tree_t *tree,
                              lxb_html_token_t *token, lxb_dom_node_t *pos);
 
+LXB_API lxb_dom_processing_instruction_t *
+lxb_html_tree_insert_processing_instruction(lxb_html_tree_t *tree,
+                                            lxb_html_token_t *token,
+                                            lxb_dom_node_t *pos);
+
 LXB_API lxb_dom_document_type_t *
 lxb_html_tree_create_document_type_from_token(lxb_html_tree_t *tree,
                                               lxb_html_token_t *token);
@@ -205,7 +219,10 @@ lxb_html_tree_element_in_scope_option_optgroup(lxb_html_tree_t *tree);
 LXB_API bool
 lxb_html_tree_check_scope_element(lxb_html_tree_t *tree);
 
-LXB_API void
+LXB_API bool
+lxb_html_tree_parsing_template_contents(lxb_html_tree_t *tree);
+
+LXB_API lxb_status_t
 lxb_html_tree_close_p_element(lxb_html_tree_t *tree, lxb_html_token_t *token);
 
 LXB_API bool
@@ -321,7 +338,7 @@ lxb_html_tree_insert_node(lxb_dom_node_t *to, lxb_dom_node_t *node,
         return;
     }
 
-    lxb_dom_node_insert_child_wo_events(to, node);
+    lxb_dom_node_insert_child(to, node);
 }
 
 /* TODO: if we not need to save parse errors?! */

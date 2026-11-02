@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Alexander Borisov
+ * Copyright (C) 2023-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
@@ -57,6 +57,13 @@ main(int argc, const char *argv[])
         return EXIT_FAILURE;
     }
 
+    /* Init all CSS objects and momory for Document. */
+
+    status = lxb_style_init(document);
+    if (status != LXB_STATUS_OK) {
+        return EXIT_FAILURE;
+    }
+
     status = lxb_html_document_parse(document, html.data, html.length);
     if (status != LXB_STATUS_OK) {
         return EXIT_FAILURE;
@@ -65,13 +72,6 @@ main(int argc, const char *argv[])
     printf("HTML:\n");
     status = lxb_html_serialize_tree_cb(lxb_dom_interface_node(document),
                                         callback, NULL);
-    if (status != LXB_STATUS_OK) {
-        return EXIT_FAILURE;
-    }
-
-    /* Init all CSS objects and momory for Document. */
-
-    status = lxb_html_document_css_init(document, true);
     if (status != LXB_STATUS_OK) {
         return EXIT_FAILURE;
     }
@@ -90,8 +90,9 @@ main(int argc, const char *argv[])
      * their styles.
      */
 
-    sst = lxb_css_stylesheet_parse(parser, slctrs.data, slctrs.length);
-    if (sst == NULL) {
+    sst = lxb_css_stylesheet_create(NULL);
+    status = lxb_css_stylesheet_parse(sst, parser, slctrs.data, slctrs.length);
+    if (status != LXB_STATUS_OK) {
         return EXIT_FAILURE;
     }
 
@@ -191,7 +192,7 @@ main(int argc, const char *argv[])
     (void) lxb_dom_collection_destroy(collection, true);
     (void) lxb_css_stylesheet_destroy(sst, true);
     (void) lxb_css_parser_destroy(parser, true);
-    (void) lxb_html_document_css_destroy(document);
+    (void) lxb_style_destroy(document);
     (void) lxb_html_document_destroy(document);
 
     return EXIT_SUCCESS;

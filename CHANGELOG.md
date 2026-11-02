@@ -2,6 +2,93 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-03-31
+
+### Added
+- Added WASM support.
+- HTML: added extended serialization API (`serialize_ext`).
+- HTML: added scripting getter/setter; `const` for `dom_opt` getter.
+- HTML: added `<selectedcontent>` element with spec-compliant disabled-state tracking.
+- Style: new `lxb_style_init()`/`lxb_style_destroy()` API replacing `lxb_html_document_css_init()`.
+- DOM: new per-tag mutation dispatch tables — `mutation` (inserted, removed, moved, destroy, children_changed, connected) and `attr_mutation` (change, append, remove, replace) — replacing the old monolithic `node_cb`.
+- DOM: added `LXB_DOM_DOCUMENT_OPT_WO_EVENTS` flag to suppress all mutation callbacks for plain parsing without overhead.
+- DOM: added `LXB_DOM_ELEMENT_CONDITION_DIRTY_STYLE` for lazy style cleanup.
+- Core: added new status `LXB_STATUS_SKIPPED`.
+- Added support for pkg-config (`lexbor.pc`).
+- Amalgamation: added cross-platform port support.
+- Added `const` to certain function arguments across the API.
+
+### Changed
+- **Breaking**: Style: replaced custom event system (`lxb_style_event_*`) with spec-compliant WHATWG DOM steps (`element_steps`, `attribute_steps`) using per-tag dispatch tables generated at build time.
+- **Breaking**: DOM: `document.node_cb` replaced by `mutation` and `attr_mutation` callback tables.
+- HTML: `open_elements` pop functions now return `lxb_status_t` and invoke per-tag callbacks.
+- HTML: `parse_cb` mechanism removed; `<style>` parsing now happens through the pop callback in the Style module.
+- HTML: `<option>` now tracks selectedness as a stored boolean field; insertion/removal steps update the nearest ancestor `<select>`.
+- HTML: `<select>` implements the full WHATWG selectedness-setting algorithm, display size computation, and list-of-options tree walk.
+- Packaging: updated DEB/RPM packaging for current distro standards.
+
+## [2.7.0] - 2026-03-12
+
+### Added
+- Added amalgamation support.
+- Encoding: added prescan validation and BOM sniffing functions.
+- HTML: added lxb_html_encoding_prescan() function.
+- HTML: added scope categories to `<select>` element per specification.
+- HTML: added descriptions for Tree Builder and Tokenizer errors.
+- DOM: added lxb_dom_node_type() function.
+- Build: added -DLEXBOR_TEST_AMALGAMATION.
+- Test::HTML: added chunks tests for html5lib tests.
+- Test::HTML: added more html5lib tests.
+- Benchmarks::HTML: added a benchmark for HTML parsing.
+- CMake: install target for use in other projects.
+- Test: added support surrogate pairs for KV parser.
+
+### Fixed
+- HTML: fixed parsing `<noscript>` element with scripting disabled.
+- HTML: fixed script end tag parsing for custom tag names.
+- HTML: fixed dash on EOF in comment start dash state.
+- HTML: fixed potential null pointer dereference.
+- HTML: serialize NULL attribute values as empty string.
+- HTML: sets DOCTYPE token force-quirks flag on parse errors.
+- HTML/Tag/NS: fixed interface constructors for non-HTML namespaces.
+- Encoding: fixed buffer_used underflow in ISO-2022-JP encoder.
+- CSS::Syntax: fixed integer overflow when parsing number exponent.
+- CSS::Syntax: fixed undef token instead of URL token.
+- Style: fixed use-after-free when destroying multiple stylesheets.
+- Selectors: fixed returning state if not found in nth-child().
+- URL: fixed "heap-buffer-overflow" for scheme is "file".
+- URL: fixed "use-after-poison" for an empty path entry.
+- URL: the cloning function does not copy the type for IPv4 and IPv6.
+- Punycode: fixed heap-buffer-overflow in encoding data.
+
+### Changed
+- HTML: improve tokenizer spec compliance for parse error reporting.
+- HTML: simplification of token emit in the tokenizer.
+- CSS: bring syntax parsing into compliance with the specification.
+- All resources moved to extern declarations.
+
+## [2.6.0] - 2025-11-10
+
+### Added
+- Added pseudo-selector :lexbor-contains(). The selector is intended for searching by text within elements.
+- DOM: added the DOMException interface/object.
+- DOM::Node: added functions for manipulating with DOM by specification.
+- URL: add test case.
+- Added interface for the DOM getElementById() function.
+- DOM: added the lxb_dom_document_type_create() function.
+- URL: added support URLSearchParams interface.
+
+### Fixed
+- URL: Fix host setters for opaque paths.
+- Fixed warning on Windows with gcc.
+- Fixed warnings with -Wsign-compare -Wformat.
+- URL: Fix port setter for malformed ports.
+- URL: fixed a use-after-free bug in parser logs.
+
+### Changed
+- Unicode: update to version 17.0.0.
+- HTML: relax <select> parser. The approach to parsing the <select> tag has been changed according to the specification. Regarding recent changes to the specifications.
+
 ## [2.5.0] - 2025-08-13
 ### Added
 - Added new module Engine.

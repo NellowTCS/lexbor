@@ -66,6 +66,20 @@ lxb_html_tree_insertion_mode_in_table_comment(lxb_html_tree_t *tree,
 }
 
 lxb_inline bool
+lxb_html_tree_insertion_mode_in_table_processing_instruction(lxb_html_tree_t *tree,
+                                                             lxb_html_token_t *token)
+{
+    lxb_dom_processing_instruction_t *pi;
+
+    pi = lxb_html_tree_insert_processing_instruction(tree, token, NULL);
+    if (pi == NULL) {
+        return lxb_html_tree_process_abort(tree);
+    }
+
+    return true;
+}
+
+lxb_inline bool
 lxb_html_tree_insertion_mode_in_table_doctype(lxb_html_tree_t *tree,
                                               lxb_html_token_t *token)
 {
@@ -209,7 +223,11 @@ lxb_html_tree_insertion_mode_in_table_table(lxb_html_tree_t *tree,
         return true;
     }
 
-    lxb_html_tree_open_elements_pop_until_node(tree, node, true);
+    tree->status = lxb_html_tree_open_elements_pop_until_node(tree, node, true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
+
     lxb_html_tree_reset_insertion_mode_appropriately(tree);
 
     return false;
@@ -229,7 +247,11 @@ lxb_html_tree_insertion_mode_in_table_table_closed(lxb_html_tree_t *tree,
         return true;
     }
 
-    lxb_html_tree_open_elements_pop_until_node(tree, node, true);
+    tree->status = lxb_html_tree_open_elements_pop_until_node(tree, node, true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
+
     lxb_html_tree_reset_insertion_mode_appropriately(tree);
 
     return true;
@@ -294,9 +316,11 @@ have_hidden:
         return lxb_html_tree_process_abort(tree);
     }
 
-    lxb_html_tree_open_elements_pop_until_node(tree,
-                                               lxb_dom_interface_node(element),
-                                               true);
+    tree->status = lxb_html_tree_open_elements_pop_until_node(tree,
+                                        lxb_dom_interface_node(element), true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     lxb_html_tree_acknowledge_token_self_closing(tree, token);
 
@@ -307,18 +331,14 @@ lxb_inline bool
 lxb_html_tree_insertion_mode_in_table_form(lxb_html_tree_t *tree,
                                            lxb_html_token_t *token)
 {
-    lxb_dom_node_t *node;
+    bool in_template;
     lxb_html_element_t *element;
 
     lxb_html_tree_parse_error(tree, token, LXB_HTML_RULES_ERROR_UNTO);
 
-    if (tree->form != NULL) {
-        return true;
-    }
+    in_template = lxb_html_tree_parsing_template_contents(tree);
 
-    node = lxb_html_tree_open_elements_find_reverse(tree, LXB_TAG_TEMPLATE,
-                                                    LXB_NS_HTML, NULL);
-    if (node != NULL) {
+    if (tree->form != NULL && in_template == false) {
         return true;
     }
 
@@ -329,11 +349,16 @@ lxb_html_tree_insertion_mode_in_table_form(lxb_html_tree_t *tree,
         return lxb_html_tree_process_abort(tree);
     }
 
-    tree->form = lxb_html_interface_form(element);
+    if (in_template == false) {
+        tree->form = lxb_html_interface_form(element);
+    }
 
-    lxb_html_tree_open_elements_pop_until_node(tree,
-                                               lxb_dom_interface_node(element),
-                                               true);
+    tree->status = lxb_html_tree_open_elements_pop_until_node(tree,
+                                        lxb_dom_interface_node(element), true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
+
     return true;
 }
 
@@ -404,6 +429,10 @@ lxb_html_tree_insertion_mode_in_table(lxb_html_tree_t *tree,
 
         case LXB_TAG__EM_COMMENT:
             return lxb_html_tree_insertion_mode_in_table_comment(tree, token);
+
+        case LXB_TAG__PROCESSINGINSTRUCTION:
+            return lxb_html_tree_insertion_mode_in_table_processing_instruction(tree,
+                                                                                token);
 
         case LXB_TAG__EM_DOCTYPE:
             return lxb_html_tree_insertion_mode_in_table_doctype(tree, token);

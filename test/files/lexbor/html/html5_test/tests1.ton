@@ -5,6 +5,9 @@
         "data": $DATA{ ,12}
             Test
         $DATA,
+        "errors": [
+            {"line": 1, "col": 0, "id": "expected-doctype-but-got-chars"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -17,6 +20,9 @@
         "data": $DATA{ ,12}
             <p>One<p>Two
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -32,6 +38,9 @@
         "data": $DATA{ ,12}
             Line1<br>Line2<br>Line3<br>Line4
         $DATA,
+        "errors": [
+            {"line": 1, "col": 0, "id": "expected-doctype-but-got-chars"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -50,6 +59,9 @@
         "data": $DATA{ ,12}
             <html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -61,6 +73,9 @@
         "data": $DATA{ ,12}
             <head>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -72,6 +87,9 @@
         "data": $DATA{ ,12}
             <body>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -83,6 +101,9 @@
         "data": $DATA{ ,12}
             <html><head>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -94,6 +115,9 @@
         "data": $DATA{ ,12}
             <html><head></head>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -105,6 +129,9 @@
         "data": $DATA{ ,12}
             <html><head></head><body>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -116,6 +143,9 @@
         "data": $DATA{ ,12}
             <html><head></head><body></body>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -127,6 +157,9 @@
         "data": $DATA{ ,12}
             <html><head><body></body></html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -138,6 +171,9 @@
         "data": $DATA{ ,12}
             <html><head></body></html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -149,6 +185,9 @@
         "data": $DATA{ ,12}
             <html><head><body></html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -160,6 +199,9 @@
         "data": $DATA{ ,12}
             <html><body></html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -171,6 +213,9 @@
         "data": $DATA{ ,12}
             <body></html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -182,6 +227,9 @@
         "data": $DATA{ ,12}
             <head></html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -193,6 +241,9 @@
         "data": $DATA{ ,12}
             </head>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -204,6 +255,9 @@
         "data": $DATA{ ,12}
             </body>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-end-tag element."}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -215,6 +269,9 @@
         "data": $DATA{ ,12}
             </html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-end-tag element."}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -226,6 +283,12 @@
         "data": $DATA{ ,12}
             <b><table><td><i></table>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 14, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 25, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 25, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -243,6 +306,13 @@
         "data": $DATA{ ,12}
             <b><table><td></b><i></table>X
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 14, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 18, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 29, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 30, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -261,6 +331,11 @@
         "data": $DATA{ ,12}
             <h1>Hello<h2>World
         $DATA,
+        "errors": [
+            {"line": 1, "col": 4, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 13, "id": "unexpected-start-tag"},
+            {"line": 1, "col": 18, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -276,6 +351,12 @@
         "data": $DATA{ ,12}
             <a><p>X<a>Y</a>Z</p></a>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 10, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 10, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 24, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -294,6 +375,11 @@
         "data": $DATA{ ,12}
             <b><button>foo</b>bar
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 18, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 21, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -310,6 +396,10 @@
         "data": $DATA{ ,12}
             <!DOCTYPE html><span><button>foo</span>bar
         $DATA,
+        "errors": [
+            {"line": 1, "col": 39, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 42, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <!DOCTYPE html>
             <html>
@@ -325,6 +415,14 @@
         "data": $DATA{ ,12}
             <p><b><div><marquee></p></b></div>X
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 11, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 24, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 28, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 34, "id": "end-tag-too-early"},
+            {"line": 1, "col": 35, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -343,6 +441,10 @@
         "data": $DATA{ ,12}
             <script><div></script></div><title><p></title><p><p>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 8, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 28, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -360,6 +462,14 @@
         "data": $DATA{ ,12}
             <!--><div>--<!-->
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "incorrect-comment"},
+            {"line": 1, "col": 10, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 17, "id": "incorrect-comment"},
+            {"line": 1, "col": 17, "id": "expected-closing-tag-but-got-eof"},
+            {"line": 1, "col": 5, "id": "abrupt-closing-of-empty-comment"},
+            {"line": 1, "col": 17, "id": "abrupt-closing-of-empty-comment"}
+        ],
         "result": $DATA{ ,12}
             <!--  -->
             <html>
@@ -375,6 +485,10 @@
         "data": $DATA{ ,12}
             <p><hr></p>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 11, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -389,6 +503,12 @@
         "data": $DATA{ ,12}
             <select><b><option><select><option></b></select>X
         $DATA,
+        "errors": [
+            {"line": 0, "col": 0, "id": "1:1: ERROR: Expected a doctype token"},
+            {"line": 0, "col": 0, "id": "1:20: ERROR: Start tag 'select' isn't allowed here. Currently open tags: html, body, select, b, option."},
+            {"line": 0, "col": 0, "id": "1:36: ERROR: End tag 'b' isn't allowed here. Currently open tags: html, body, b, select, option."},
+            {"line": 0, "col": 0, "id": "1:50: ERROR: Premature end of file. Currently open tags: html, body, b."}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -406,6 +526,17 @@
         "data": $DATA{ ,12}
             <a><table><td><a><table></table><a></tr><a></table><b>X</b>C<a>Y
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 14, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 35, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 40, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 43, "id": "unexpected-start-tag-implies-table-voodoo"},
+            {"line": 1, "col": 43, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 43, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 63, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 64, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -432,16 +563,22 @@
         "data": $DATA{ ,12}
             <a X>0<b>1<a Y>2
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 15, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 15, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 16, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
               <body>
-                <a x>
+                <a x="">
                   "0"
                   <b>
                     "1"
                 <b>
-                  <a y>
+                  <a y="">
                     "2"
         $DATA
     },
@@ -450,6 +587,23 @@
         "data": $DATA{ ,12}
             <!-----><font><div>hello<table>excite!<b>me!<th><i>please!</tr><!--X-->
         $DATA,
+        "errors": [
+            {"line": 1, "col": 14, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 41, "id": "unexpected-start-tag-implies-table-voodoo"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 48, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 63, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 71, "id": "eof-in-table"}
+        ],
         "result": $DATA{ ,12}
             <!-- - -->
             <html>
@@ -496,6 +650,10 @@
         "data": $DATA{ ,12}
             <!DOCTYPE html>A<option>B<optgroup>C<select>D</option>E
         $DATA,
+        "errors": [
+            {"line": 1, "col": 54, "id": "unexpected-end-tag-in-select"},
+            {"line": 1, "col": 55, "id": "eof-in-select"}
+        ],
         "result": $DATA{ ,12}
             <!DOCTYPE html>
             <html>
@@ -515,6 +673,11 @@
         "data": $DATA{ ,12}
             <
         $DATA,
+        "errors": [
+            {"line": 1, "col": 1, "id": "expected-tag-name"},
+            {"line": 1, "col": 1, "id": "expected-doctype-but-got-chars"},
+            {"line": 1, "col": 2, "id": "eof-before-tag-name"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -527,6 +690,11 @@
         "data": $DATA{ ,12}
             <#
         $DATA,
+        "errors": [
+            {"line": 1, "col": 1, "id": "expected-tag-name"},
+            {"line": 1, "col": 1, "id": "expected-doctype-but-got-chars"},
+            {"line": 1, "col": 2, "id": "invalid-first-character-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -539,6 +707,11 @@
         "data": $DATA{ ,12}
             </
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-closing-tag-but-got-eof"},
+            {"line": 1, "col": 2, "id": "expected-doctype-but-got-chars"},
+            {"line": 1, "col": 3, "id": "eof-before-tag-name"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -551,6 +724,11 @@
         "data": $DATA{ ,12}
             </#
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-closing-tag-but-got-char"},
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 3, "id": "invalid-first-character-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
             <!-- # -->
             <html>
@@ -563,8 +741,12 @@
         "data": $DATA{ ,12}
             <?
         $DATA,
+        "errors": [
+            {"line": 1, "col": 1, "id": "expected-tag-name-but-got-question-mark"},
+            {"line": 1, "col": 2, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 2, "id": "unexpected-question-mark-instead-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
-            <!-- ? -->
             <html>
               <head>
               <body>
@@ -575,6 +757,11 @@
         "data": $DATA{ ,12}
             <?#
         $DATA,
+        "errors": [
+            {"line": 1, "col": 1, "id": "expected-tag-name-but-got-question-mark"},
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 2, "id": "unexpected-question-mark-instead-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
             <!-- ?# -->
             <html>
@@ -587,6 +774,11 @@
         "data": $DATA{ ,12}
             <!
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-dashes-or-doctype"},
+            {"line": 1, "col": 2, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 3, "id": "incorrectly-opened-comment"}
+        ],
         "result": $DATA{ ,12}
             <!--  -->
             <html>
@@ -599,6 +791,11 @@
         "data": $DATA{ ,12}
             <!#
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-dashes-or-doctype"},
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 3, "id": "incorrectly-opened-comment"}
+        ],
         "result": $DATA{ ,12}
             <!-- # -->
             <html>
@@ -611,8 +808,13 @@
         "data": $DATA{ ,12}
             <?COMMENT?>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 1, "id": "expected-tag-name-but-got-question-mark"},
+            {"line": 1, "col": 11, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 2, "id": "unexpected-question-mark-instead-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
-            <!-- ?COMMENT? -->
+            <?COMMENT ?>
             <html>
               <head>
               <body>
@@ -623,6 +825,11 @@
         "data": $DATA{ ,12}
             <!COMMENT>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-dashes-or-doctype"},
+            {"line": 1, "col": 10, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 3, "id": "incorrectly-opened-comment"}
+        ],
         "result": $DATA{ ,12}
             <!-- COMMENT -->
             <html>
@@ -635,6 +842,11 @@
         "data": $DATA{ ,12}
             </ COMMENT >
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-closing-tag-but-got-char"},
+            {"line": 1, "col": 12, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 3, "id": "invalid-first-character-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
             <!--  COMMENT  -->
             <html>
@@ -647,8 +859,13 @@
         "data": $DATA{ ,12}
             <?COM--MENT?>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 1, "id": "expected-tag-name-but-got-question-mark"},
+            {"line": 1, "col": 13, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 2, "id": "unexpected-question-mark-instead-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
-            <!-- ?COM--MENT? -->
+            <?COM--MENT ?>
             <html>
               <head>
               <body>
@@ -659,6 +876,11 @@
         "data": $DATA{ ,12}
             <!COM--MENT>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-dashes-or-doctype"},
+            {"line": 1, "col": 12, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 3, "id": "incorrectly-opened-comment"}
+        ],
         "result": $DATA{ ,12}
             <!-- COM--MENT -->
             <html>
@@ -671,6 +893,11 @@
         "data": $DATA{ ,12}
             </ COM--MENT >
         $DATA,
+        "errors": [
+            {"line": 1, "col": 2, "id": "expected-closing-tag-but-got-char"},
+            {"line": 1, "col": 14, "id": "expected-doctype-but-got-eof"},
+            {"line": 1, "col": 3, "id": "invalid-first-character-of-tag-name"}
+        ],
         "result": $DATA{ ,12}
             <!--  COM--MENT  -->
             <html>
@@ -683,6 +910,9 @@
         "data": $DATA{ ,12}
             <!DOCTYPE html><style> EOF
         $DATA,
+        "errors": [
+            {"line": 1, "col": 26, "id": "expected-named-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <!DOCTYPE html>
             <html>
@@ -697,6 +927,9 @@
         "data": $DATA{ ,12}
             <!DOCTYPE html><script> <!-- </script> --> </script> EOF
         $DATA,
+        "errors": [
+            {"line": 1, "col": 52, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <!DOCTYPE html>
             <html>
@@ -713,6 +946,10 @@
         "data": $DATA{ ,12}
             <b><p></b>TEST
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 10, "id": "adoption-agency-1.3"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -728,6 +965,11 @@
         "data": $DATA{ ,12}
             <p id=a><b><p id=b></b>TEST
         $DATA,
+        "errors": [
+            {"line": 1, "col": 8, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 19, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 23, "id": "adoption-agency-1.2"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -743,6 +985,12 @@
         "data": $DATA{ ,12}
             <b id=a><p><b id=b></p></b>TEST
         $DATA,
+        "errors": [
+            {"line": 1, "col": 8, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 23, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 27, "id": "adoption-agency-1.2"},
+            {"line": 1, "col": 31, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -758,6 +1006,9 @@
         "data": $DATA{ ,12}
             <!DOCTYPE html><title>U-test</title><body><div><p>Test<u></p></div></body>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 61, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <!DOCTYPE html>
             <html>
@@ -776,6 +1027,10 @@
         "data": $DATA{ ,12}
             <!DOCTYPE html><font><table></font></table></font>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 35, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 35, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <!DOCTYPE html>
             <html>
@@ -790,6 +1045,12 @@
         "data": $DATA{ ,12}
             <font><p>hello<b>cruel</font>world
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 29, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 29, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 34, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -809,6 +1070,11 @@
         "data": $DATA{ ,12}
             <b>Test</i>Test
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 11, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 15, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -822,6 +1088,10 @@
         "data": $DATA{ ,12}
             <b>A<cite>B<div>C
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 17, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -839,6 +1109,11 @@
         "data": $DATA{ ,12}
             <b>A<cite>B<div>C</cite>D
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 24, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 25, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -856,6 +1131,11 @@
         "data": $DATA{ ,12}
             <b>A<cite>B<div>C</b>D
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 21, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 22, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -875,6 +1155,9 @@
         "data": $DATA{ ,12}
             
         $DATA,
+        "errors": [
+            {"line": 1, "col": 0, "id": "expected-doctype-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -886,6 +1169,10 @@
         "data": $DATA{ ,12}
             <DIV>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 5, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -898,6 +1185,10 @@
         "data": $DATA{ ,12}
             <DIV> abc
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 9, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -911,6 +1202,10 @@
         "data": $DATA{ ,12}
             <DIV> abc <B>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 13, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -925,6 +1220,10 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 17, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -940,6 +1239,10 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 21, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -956,6 +1259,10 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 25, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -973,6 +1280,10 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 29, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -991,6 +1302,10 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P> jkl
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 33, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1010,6 +1325,11 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P> jkl </B>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 38, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 38, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1031,6 +1351,11 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P> jkl </B> mno
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 38, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 42, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1053,6 +1378,12 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P> jkl </B> mno </I>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 38, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 47, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 47, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1076,6 +1407,12 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P> jkl </B> mno </I> pqr
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 38, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 47, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 51, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1100,6 +1437,12 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P> jkl </B> mno </I> pqr </P>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 38, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 47, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 56, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1124,6 +1467,12 @@
         "data": $DATA{ ,12}
             <DIV> abc <B> def <I> ghi <P> jkl </B> mno </I> pqr </P> stu
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 38, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 47, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 60, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1149,11 +1498,15 @@
         "data": $DATA{ ,12}
             <test attribute---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------->
         $DATA,
+        "errors": [
+            {"line": 1, "col": 1040, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 1040, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
               <body>
-                <test attribute---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------->
+                <test attribute----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------="">
         $DATA
     },
     /* Test number: 78 */
@@ -1161,6 +1514,16 @@
         "data": $DATA{ ,12}
             <a href="blah">aba<table><a href="foo">br<tr><td></td></tr>x</table>aoe
         $DATA,
+        "errors": [
+            {"line": 1, "col": 15, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 39, "id": "unexpected-start-tag-implies-table-voodoo"},
+            {"line": 1, "col": 39, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 39, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 45, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 45, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 68, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 71, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1184,6 +1547,12 @@
         "data": $DATA{ ,12}
             <a href="blah">aba<table><tr><td><a href="foo">br</td></tr>x</table>aoe
         $DATA,
+        "errors": [
+            {"line": 1, "col": 15, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 54, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 68, "id": "unexpected text in table"},
+            {"line": 1, "col": 71, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1204,6 +1573,16 @@
         "data": $DATA{ ,12}
             <table><a href="blah">aba<tr><td><a href="foo">br</td></tr>x</table>aoe
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 22, "id": "unexpected-start-tag-implies-table-voodoo"},
+            {"line": 1, "col": 29, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 29, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 29, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 54, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 68, "id": "foster-parenting-character-in-table"},
+            {"line": 1, "col": 71, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1227,6 +1606,11 @@
         "data": $DATA{ ,12}
             <a href=a>aa<marquee>aa<a href=b>bb</marquee>aa
         $DATA,
+        "errors": [
+            {"line": 1, "col": 10, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 45, "id": "end-tag-too-early"},
+            {"line": 1, "col": 47, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1245,6 +1629,12 @@
         "data": $DATA{ ,12}
             <wbr><strike><code></strike><code><strike></code>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 5, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 28, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 49, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 49, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1262,6 +1652,9 @@
         "data": $DATA{ ,12}
             <!DOCTYPE html><spacer>foo
         $DATA,
+        "errors": [
+            {"line": 1, "col": 26, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <!DOCTYPE html>
             <html>
@@ -1276,6 +1669,9 @@
         "data": $DATA{ ,12}
             <title><meta></title><link><title><meta></title>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1292,6 +1688,9 @@
         "data": $DATA{ ,12}
             <style><!--</style><meta><script>--><link></script>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1308,6 +1707,10 @@
         "data": $DATA{ ,12}
             <head><meta></head><link>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 25, "id": "unexpected-start-tag-out-of-my-head"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1321,6 +1724,11 @@
         "data": $DATA{ ,12}
             <table><tr><tr><td><td><span><th><span>X</table>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 33, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 48, "id": "unexpected-cell-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1342,6 +1750,11 @@
         "data": $DATA{ ,12}
             <body><body><base><link><meta><title><p></title><body><p></body>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 12, "id": "unexpected-start-tag"},
+            {"line": 1, "col": 54, "id": "unexpected-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1359,6 +1772,9 @@
         "data": $DATA{ ,12}
             <textarea><p></textarea>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 10, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1372,6 +1788,10 @@
         "data": $DATA{ ,12}
             <p><image></p>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 10, "id": "unexpected-start-tag-treated-as"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1385,6 +1805,18 @@
         "data": $DATA{ ,12}
             <a><table><a></table><p><a><div><a>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 13, "id": "unexpected-start-tag-implies-table-voodoo"},
+            {"line": 1, "col": 13, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 13, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 27, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 27, "id": "adoption-agency-1.2"},
+            {"line": 1, "col": 32, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 35, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 35, "id": "adoption-agency-1.2"},
+            {"line": 1, "col": 35, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1403,6 +1835,10 @@
         "data": $DATA{ ,12}
             <head></p><meta><p>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 10, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1416,6 +1852,10 @@
         "data": $DATA{ ,12}
             <head></html><meta><p>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 19, "id": "expected-eof-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1429,6 +1869,13 @@
         "data": $DATA{ ,12}
             <b><table><td></b><i></table>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 14, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 18, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 29, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 29, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1446,6 +1893,11 @@
         "data": $DATA{ ,12}
             <h1><h2>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 4, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 8, "id": "unexpected-start-tag"},
+            {"line": 1, "col": 8, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1459,6 +1911,12 @@
         "data": $DATA{ ,12}
             <a><p><a></a></p></a>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 9, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 9, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 21, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1474,6 +1932,11 @@
         "data": $DATA{ ,12}
             <b><button></b></button></b>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 15, "id": "adoption-agency-1.3"},
+            {"line": 1, "col": 28, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1488,6 +1951,14 @@
         "data": $DATA{ ,12}
             <p><b><div><marquee></p></b></div>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 11, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 24, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 28, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 34, "id": "end-tag-too-early"},
+            {"line": 1, "col": 34, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1505,6 +1976,10 @@
         "data": $DATA{ ,12}
             <script></script></div><title></title><p><p>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 8, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 23, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1520,6 +1995,12 @@
         "data": $DATA{ ,12}
             <select><b><option><select><option></b></select>
         $DATA,
+        "errors": [
+            {"line": 0, "col": 0, "id": "1:1: ERROR: Expected a doctype token"},
+            {"line": 0, "col": 0, "id": "1:20: ERROR: Start tag 'select' isn't allowed here. Currently open tags: html, body, select, b, option."},
+            {"line": 0, "col": 0, "id": "1:36: ERROR: End tag 'b' isn't allowed here. Currently open tags: html, body, b, select, option."},
+            {"line": 0, "col": 0, "id": "1:49: ERROR: Premature end of file. Currently open tags: html, body, b."}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1536,6 +2017,9 @@
         "data": $DATA{ ,12}
             <html><head><title></title><body></body></html>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 6, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1548,6 +2032,18 @@
         "data": $DATA{ ,12}
             <a><table><td><a><table></table><a></tr><a></table><a>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 3, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 14, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 35, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 40, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 43, "id": "unexpected-start-tag-implies-table-voodoo"},
+            {"line": 1, "col": 43, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 43, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 54, "id": "unexpected-start-tag-implies-end-tag"},
+            {"line": 1, "col": 54, "id": "adoption-agency-1.2"},
+            {"line": 1, "col": 54, "id": "expected-closing-tag-but-got-eof"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1569,6 +2065,12 @@
         "data": $DATA{ ,12}
             <ul><li></li><div><li></div><li><li><div><li><address><li><b><em></b><li></ul>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 4, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 45, "id": "end-tag-too-early"},
+            {"line": 1, "col": 58, "id": "end-tag-too-early"},
+            {"line": 1, "col": 69, "id": "adoption-agency-1.3"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1593,6 +2095,10 @@
         "data": $DATA{ ,12}
             <ul><li><ul></li><li>a</li></ul></li></ul>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 4, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 17, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1609,6 +2115,9 @@
         "data": $DATA{ ,12}
             <frameset><frame><frameset><frame></frameset><noframes></noframes></frameset>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 10, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1624,6 +2133,13 @@
         "data": $DATA{ ,12}
             <h1><table><td><h3></table><h3></h1>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 4, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 15, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 27, "id": "unexpected-cell-end-tag"},
+            {"line": 1, "col": 31, "id": "unexpected-start-tag"},
+            {"line": 1, "col": 36, "id": "end-tag-too-early"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1642,6 +2158,9 @@
         "data": $DATA{ ,12}
             <table><colgroup><col><colgroup><col><col><col><colgroup><col><col><thead><tr><td></table>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1666,6 +2185,11 @@
         "data": $DATA{ ,12}
             <table><col><tbody><col><tr><col><td><col></table><col>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 37, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 55, "id": "unexpected-start-tag-ignored"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1692,6 +2216,11 @@
         "data": $DATA{ ,12}
             <table><colgroup><tbody><colgroup><tr><colgroup><td><colgroup></table><colgroup>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 52, "id": "unexpected-cell-in-table-body"},
+            {"line": 1, "col": 80, "id": "unexpected-start-tag-ignored"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1714,6 +2243,93 @@
         "data": $DATA{ ,12}
             </strong></b></em></i></u></strike></s></blink></tt></pre></big></small></font></select></h1></h2></h3></h4></h5></h6></body></br></a></img></title></span></style></script></table></th></td></tr></frame></area></link></param></hr></input></col></base></meta></basefont></bgsound></embed></spacer></p></dd></dt></caption></colgroup></tbody></tfoot></thead></address></blockquote></center></dir></div></dl></fieldset></listing></menu></ol></ul></li></nobr></wbr></form></button></marquee></object></html></frameset></head></iframe></image></isindex></noembed></noframes></noscript></optgroup></option></plaintext></textarea>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 9, "id": "expected-doctype-but-got-end-tag"},
+            {"line": 1, "col": 9, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 13, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 18, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 22, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 26, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 35, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 39, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 47, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 52, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 58, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 64, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 72, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 79, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 88, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 93, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 98, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 103, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 108, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 113, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 118, "id": "unexpected-end-tag-before-html"},
+            {"line": 1, "col": 130, "id": "unexpected-end-tag-after-body"},
+            {"line": 1, "col": 130, "id": "unexpected-end-tag-treated-as"},
+            {"line": 1, "col": 134, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 140, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 148, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 155, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 163, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 172, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 180, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 185, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 190, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 195, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 203, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 210, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 217, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 225, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 230, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 238, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 244, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 251, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 258, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 269, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 279, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 287, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 296, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 300, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 305, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 310, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 320, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 331, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 339, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 347, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 355, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 365, "id": "end-tag-too-early"},
+            {"line": 1, "col": 378, "id": "end-tag-too-early"},
+            {"line": 1, "col": 387, "id": "end-tag-too-early"},
+            {"line": 1, "col": 393, "id": "end-tag-too-early"},
+            {"line": 1, "col": 399, "id": "end-tag-too-early"},
+            {"line": 1, "col": 404, "id": "end-tag-too-early"},
+            {"line": 1, "col": 415, "id": "end-tag-too-early"},
+            {"line": 1, "col": 425, "id": "end-tag-too-early"},
+            {"line": 1, "col": 432, "id": "end-tag-too-early"},
+            {"line": 1, "col": 437, "id": "end-tag-too-early"},
+            {"line": 1, "col": 442, "id": "end-tag-too-early"},
+            {"line": 1, "col": 447, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 454, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 460, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 467, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 476, "id": "end-tag-too-early"},
+            {"line": 1, "col": 486, "id": "end-tag-too-early"},
+            {"line": 1, "col": 495, "id": "end-tag-too-early"},
+            {"line": 1, "col": 513, "id": "expected-eof-but-got-end-tag"},
+            {"line": 1, "col": 513, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 520, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 529, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 537, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 547, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 557, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 568, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 579, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 590, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 599, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 611, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 622, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1727,6 +2343,119 @@
         "data": $DATA{ ,12}
             <table><tr></strong></b></em></i></u></strike></s></blink></tt></pre></big></small></font></select></h1></h2></h3></h4></h5></h6></body></br></a></img></title></span></style></script></table></th></td></tr></frame></area></link></param></hr></input></col></base></meta></basefont></bgsound></embed></spacer></p></dd></dt></caption></colgroup></tbody></tfoot></thead></address></blockquote></center></dir></div></dl></fieldset></listing></menu></ol></ul></li></nobr></wbr></form></button></marquee></object></html></frameset></head></iframe></image></isindex></noembed></noframes></noscript></optgroup></option></plaintext></textarea>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 7, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 20, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 20, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 24, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 24, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 29, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 29, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 33, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 33, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 37, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 37, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 46, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 46, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 50, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 50, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 58, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 58, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 63, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 63, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 69, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 69, "id": "end-tag-too-early"},
+            {"line": 1, "col": 75, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 75, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 83, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 83, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 90, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 90, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 99, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 99, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 104, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 104, "id": "end-tag-too-early"},
+            {"line": 1, "col": 109, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 109, "id": "end-tag-too-early"},
+            {"line": 1, "col": 114, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 114, "id": "end-tag-too-early"},
+            {"line": 1, "col": 119, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 119, "id": "end-tag-too-early"},
+            {"line": 1, "col": 124, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 124, "id": "end-tag-too-early"},
+            {"line": 1, "col": 129, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 129, "id": "end-tag-too-early"},
+            {"line": 1, "col": 136, "id": "unexpected-end-tag-in-table-row"},
+            {"line": 1, "col": 141, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 141, "id": "unexpected-end-tag-treated-as"},
+            {"line": 1, "col": 145, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 145, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 151, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 151, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 159, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 159, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 166, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 166, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 174, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 174, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 183, "id": "unexpected-end-tag-implies-table-voodoo"},
+            {"line": 1, "col": 183, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 196, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 201, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 206, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 214, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 221, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 228, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 236, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 241, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 249, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 255, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 262, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 269, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 280, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 290, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 298, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 307, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 311, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 316, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 321, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 331, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 342, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 350, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 358, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 366, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 376, "id": "end-tag-too-early"},
+            {"line": 1, "col": 389, "id": "end-tag-too-early"},
+            {"line": 1, "col": 398, "id": "end-tag-too-early"},
+            {"line": 1, "col": 404, "id": "end-tag-too-early"},
+            {"line": 1, "col": 410, "id": "end-tag-too-early"},
+            {"line": 1, "col": 415, "id": "end-tag-too-early"},
+            {"line": 1, "col": 426, "id": "end-tag-too-early"},
+            {"line": 1, "col": 436, "id": "end-tag-too-early"},
+            {"line": 1, "col": 443, "id": "end-tag-too-early"},
+            {"line": 1, "col": 448, "id": "end-tag-too-early"},
+            {"line": 1, "col": 453, "id": "end-tag-too-early"},
+            {"line": 1, "col": 458, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 465, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 471, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 478, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 487, "id": "end-tag-too-early"},
+            {"line": 1, "col": 497, "id": "end-tag-too-early"},
+            {"line": 1, "col": 506, "id": "end-tag-too-early"},
+            {"line": 1, "col": 524, "id": "expected-eof-but-got-end-tag"},
+            {"line": 1, "col": 524, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 531, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 540, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 548, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 558, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 568, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 579, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 590, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 601, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 610, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 622, "id": "unexpected-end-tag"},
+            {"line": 1, "col": 633, "id": "unexpected-end-tag"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>
@@ -1743,6 +2472,10 @@
         "data": $DATA{ ,12}
             <frameset>
         $DATA,
+        "errors": [
+            {"line": 1, "col": 10, "id": "expected-doctype-but-got-start-tag"},
+            {"line": 1, "col": 10, "id": "eof-in-frameset"}
+        ],
         "result": $DATA{ ,12}
             <html>
               <head>

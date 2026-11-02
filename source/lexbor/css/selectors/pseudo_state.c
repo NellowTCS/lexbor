@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 Alexander Borisov
+ * Copyright (C) 2020-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
@@ -27,10 +27,9 @@ lxb_css_selectors_state_pseudo_of_back(lxb_css_parser_t *parser,
 
 
 static const lxb_css_syntax_cb_components_t lxb_css_selectors_comp = {
-    .state = lxb_css_selectors_state_complex_list,
-    .block = NULL,
-    .failed = lxb_css_state_failed,
-    .end = lxb_css_selectors_state_pseudo_of_end
+    .prelude = lxb_css_selectors_state_complex_list,
+    .cb.failed = lxb_css_state_failed,
+    .cb.end = lxb_css_selectors_state_pseudo_of_end
 };
 
 
@@ -228,13 +227,13 @@ again:
     contains->insensitive = false;
     str = &contains->str;
 
-    str->data = lexbor_mraw_alloc(parser->memory->mraw,
-                                  sizeof(lexbor_str_t));
+    str->data = lexbor_mraw_alloc(parser->memory->mraw, length + 1);
     if (str->data == NULL) {
+        lexbor_mraw_free(parser->memory->mraw, contains);
         return lxb_css_parser_memory_fail(parser);
     }
 
-    memcpy(str->data, data, length + 1);
+    memcpy(str->data, data, length);
 
     str->length = length;
     str->data[length] = '\0';
@@ -288,6 +287,8 @@ failed:
 
     lexbor_mraw_free(parser->memory->mraw, contains->str.data);
     lexbor_mraw_free(parser->memory->mraw, contains);
+
+    selector->u.pseudo.data = NULL;
 
     lxb_css_parser_unexpected_data(parser, token);
     return lxb_css_parser_failed(parser);
@@ -379,10 +380,14 @@ lxb_css_selectors_state_pseudo_of_begin(lxb_css_parser_t *parser,
                 return lxb_css_parser_memory_fail(parser);
             }
 
-            rule = lxb_css_syntax_parser_components_push(parser, token,
+            rule = lxb_css_syntax_parser_components_push(parser,
+                                                         &lxb_css_selectors_comp,
                                                          lxb_css_selectors_state_pseudo_of_back,
-                                                         &lxb_css_selectors_comp, list,
-                                                         LXB_CSS_SYNTAX_TOKEN_R_PARENTHESIS);
+                                                         list, LXB_CSS_SYNTAX_TOKEN_R_PARENTHESIS);
+//            rule = lxb_css_syntax_parser_components_push(parser, token,
+//                                                         lxb_css_selectors_state_pseudo_of_back,
+//                                                         &lxb_css_selectors_comp, list,
+//                                                         LXB_CSS_SYNTAX_TOKEN_R_PARENTHESIS);
             if (rule == NULL) {
                 lexbor_mraw_free(parser->memory->mraw,
                                  list->last->u.pseudo.data);

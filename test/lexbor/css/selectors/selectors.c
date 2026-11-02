@@ -21,6 +21,11 @@ typedef struct {
 }
 lxb_test_entry_t;
 
+typedef struct {
+    const char *selector;
+}
+lxb_test_destroy_entry_t;
+
 static const lxb_test_entry_t selectors_list[] =
 {
     {"a",
@@ -31,6 +36,36 @@ static const lxb_test_entry_t selectors_list[] =
     {".super",
      ".super",
      "",
+     lxb_css_selectors_parse},
+
+    {".\xC3\x9C" "ber",
+     ".\xC3\x9C" "ber",
+     "",
+     lxb_css_selectors_parse},
+
+    {".a\xC2\xB7" "b",
+     ".a\xC2\xB7" "b",
+     "",
+     lxb_css_selectors_parse},
+
+    {".\xCD\xBD" "x",
+     ".\xCD\xBD" "x",
+     "",
+     lxb_css_selectors_parse},
+
+    {".\xC3\xB7" "x",
+     "",
+     "Syntax error. Selectors. Unexpected token: \xC3\xB7",
+     lxb_css_selectors_parse},
+
+    {".\xCD\xBE" "x",
+     "",
+     "Syntax error. Selectors. Unexpected token: \xCD\xBE",
+     lxb_css_selectors_parse},
+
+    {".;x",
+     "",
+     "Syntax error. Selectors. Unexpected token: ;",
      lxb_css_selectors_parse},
 
     {" .super ",
@@ -59,12 +94,12 @@ static const lxb_test_entry_t selectors_list[] =
      lxb_css_selectors_parse},
 
     {"|div",
-     "*|div",
+     "|div",
      "",
      lxb_css_selectors_parse},
 
     {"* |div",
-     "* *|div",
+     "* |div",
      "",
      lxb_css_selectors_parse},
 
@@ -74,7 +109,7 @@ static const lxb_test_entry_t selectors_list[] =
      lxb_css_selectors_parse},
 
     {"html |div",
-     "html *|div",
+     "html |div",
      "",
      lxb_css_selectors_parse},
 
@@ -128,14 +163,99 @@ static const lxb_test_entry_t selectors_list[] =
      "",
      lxb_css_selectors_parse},
 
+    {"[refs",
+     "[refs]",
+     "Syntax error. Selectors. End Of File in attribute selector",
+     lxb_css_selectors_parse},
+
+    {"[refs=link",
+     "[refs=\"link\"]",
+     "Syntax error. Selectors. End Of File in attribute selector",
+     lxb_css_selectors_parse},
+
+    {"[refs='a b",
+     "[refs=\"a b\"]",
+     "Syntax error. Selectors. End Of File in attribute selector",
+     lxb_css_selectors_parse},
+
+    {"[refs=link i",
+     "[refs=\"link\"i]",
+     "Syntax error. Selectors. End Of File in attribute selector",
+     lxb_css_selectors_parse},
+
+    {"div[refs",
+     "div[refs]",
+     "Syntax error. Selectors. End Of File in attribute selector",
+     lxb_css_selectors_parse},
+
     {"[refs=link I]",
+     "[refs=\"link\"i]",
      "",
-     "Syntax error. Selectors. Unexpected token: I",
+     lxb_css_selectors_parse},
+
+    {"[refs=link S]",
+     "[refs=\"link\"s]",
+     "",
+     lxb_css_selectors_parse},
+
+    {"[refs=link \\69]",
+     "[refs=\"link\"i]",
+     "",
+     lxb_css_selectors_parse},
+
+    {"[refs=link \\049 ]",
+     "[refs=\"link\"i]",
+     "",
+     lxb_css_selectors_parse},
+
+    {"[refs=link \\000073]",
+     "[refs=\"link\"s]",
+     "",
+     lxb_css_selectors_parse},
+
+    {"[refs=link \\53]",
+     "[refs=\"link\"s]",
+     "",
+     lxb_css_selectors_parse},
+
+    {"[refs=link insensitive]",
+     "",
+     "Syntax error. Selectors. Unexpected token: insensitive",
+     lxb_css_selectors_parse},
+
+    {"[refs=link iZZZ]",
+     "",
+     "Syntax error. Selectors. Unexpected token: iZZZ",
+     lxb_css_selectors_parse},
+
+    {"[refs=link sensitive]",
+     "",
+     "Syntax error. Selectors. Unexpected token: sensitive",
+     lxb_css_selectors_parse},
+
+    {"[refs=link Sensitive]",
+     "",
+     "Syntax error. Selectors. Unexpected token: Sensitive",
      lxb_css_selectors_parse},
 
     {"[refs=0%]",
      "",
      "Syntax error. Selectors. Unexpected token: 0%",
+     lxb_css_selectors_parse},
+
+    {"[",
+     "",
+     "Syntax error. Selectors. Unexpected token: END-OF-FILE",
+     lxb_css_selectors_parse},
+
+    {"[refs=",
+     "",
+     "Syntax error. Selectors. Unexpected token: END-OF-FILE",
+     lxb_css_selectors_parse},
+
+    {"[refs~",
+     "",
+     "Syntax error. Selectors. Unexpected token: END-OF-FILE",
      lxb_css_selectors_parse},
 
     {"[refs i]",
@@ -817,9 +937,47 @@ static const lxb_test_entry_t selectors_list[] =
      "",
      lxb_css_selectors_parse_simple_list},
 
+    {":lexbor-contains(abc s)",
+     "",
+     "Syntax error. Selectors. Unexpected token: s",
+     lxb_css_selectors_parse_simple_list},
+
     {":lexbor-contains(12345)",
      "",
      "Syntax error. Selectors. Unexpected token: 12345",
+     lxb_css_selectors_parse_simple_list},
+
+    {":lexbor-contains(\""
+     "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" /* 64 */
+     "\")",
+     ":lexbor-contains(\""
+     "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+     "\")",
+     "",
+     lxb_css_selectors_parse_simple_list},
+
+    {":lexbor-contains(\""
+     "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" /* 64 */
+     "\" i)",
+     ":lexbor-contains(\""
+     "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+     "\" i)",
+     "",
+     lxb_css_selectors_parse_simple_list},
+
+    {":lexbor-contains(\""
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" /* 200 */
+     "\")",
+     ":lexbor-contains(\""
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+     "\")",
+     "",
      lxb_css_selectors_parse_simple_list},
 };
 
@@ -882,12 +1040,65 @@ TEST_BEGIN(lexbor_selectors_list)
 }
 TEST_END
 
+TEST_BEGIN(lexbor_selectors_destroy_memory)
+{
+    lxb_status_t status;
+    lxb_css_parser_t *parser;
+    lxb_css_memory_t *memory;
+    lxb_css_selector_list_t *list;
+
+    static const lxb_test_destroy_entry_t entries[] = {
+        {".class"},
+        {":hover"},
+        {":not(.class)"},
+        {":where(.class)"},
+        {":nth-child(2n+1 of .class)"},
+        {":lexbor-contains(A)"},
+        {":lexbor-contains(\"A\" i)"}
+    };
+
+    size_t entries_length = sizeof(entries) / sizeof(lxb_test_destroy_entry_t);
+
+    memory = lxb_css_memory_create();
+    test_ne(memory, NULL);
+
+    status = lxb_css_memory_init(memory, 128);
+    test_eq(status, LXB_STATUS_OK);
+
+    parser = lxb_css_parser_create();
+    test_ne(parser, NULL);
+
+    status = lxb_css_parser_init(parser, NULL);
+    test_eq(status, LXB_STATUS_OK);
+
+    lxb_css_parser_memory_set(parser, memory);
+
+    for (unsigned i = 0; i < entries_length; i++) {
+        for (unsigned j = 0; j < 3; j++) {
+            list = lxb_css_selectors_parse(parser,
+                                           (const lxb_char_t *) entries[i].selector,
+                                           strlen(entries[i].selector));
+            test_ne(list, NULL);
+
+            lxb_css_selector_list_destroy(list);
+            test_eq(lexbor_mraw_reference_count(memory->mraw), 0);
+
+            lxb_css_parser_erase(parser);
+        }
+    }
+
+    (void) lxb_css_parser_destroy(parser, true);
+    (void) lxb_css_memory_destroy(memory, true);
+}
+TEST_END
+
 int
 main(int argc, const char * argv[])
 {
     TEST_INIT();
 
     TEST_ADD(lexbor_selectors_list);
+    TEST_ADD(lexbor_selectors_destroy_memory);
 
     TEST_RUN("lexbor/css/selectors/selectors");
     TEST_RELEASE();

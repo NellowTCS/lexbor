@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Alexander Borisov
+ * Copyright (C) 2018-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
@@ -14,10 +14,7 @@
 #include <unit/test.h>
 
 #include <lexbor/tag/tag.h>
-
-#define LXB_HTML_TAG_RES_DATA
-#define LXB_HTML_TAG_RES_SHS_DATA
-#include <lexbor/html/tag_res.h>
+#include <lexbor/html/tag.h>
 
 
 TEST_BEGIN(names)
@@ -40,6 +37,12 @@ TEST_BEGIN(names)
     test_ne(entry, NULL); test_eq_u_str(lexbor_hash_entry_str(&entry->entry), (const lxb_char_t *) "#text");
     entry = lxb_tag_data_by_name(tags, (const lxb_char_t *) "#undef", 6);
     test_ne(entry, NULL); test_eq_u_str(lexbor_hash_entry_str(&entry->entry), (const lxb_char_t *) "#undef");
+    entry = lxb_tag_data_by_name(tags, (const lxb_char_t *) "?ProcessingInstruction", 22);
+    test_ne(entry, NULL); test_eq_u_str(lexbor_hash_entry_str(&entry->entry), (const lxb_char_t *) "?ProcessingInstruction");
+    entry = lxb_tag_data_by_name(tags, (const lxb_char_t *) "?processinginstruction", 22);
+    test_ne(entry, NULL); test_eq_u_str(lexbor_hash_entry_str(&entry->entry), (const lxb_char_t *) "?ProcessingInstruction");
+    entry = lxb_tag_data_by_name(tags, (const lxb_char_t *) "?PROCESSINGINSTRUCTION", 22);
+    test_ne(entry, NULL); test_eq_u_str(lexbor_hash_entry_str(&entry->entry), (const lxb_char_t *) "?ProcessingInstruction");
     entry = lxb_tag_data_by_name(tags, (const lxb_char_t *) "a", 1);
     test_ne(entry, NULL); test_eq_u_str(lexbor_hash_entry_str(&entry->entry), (const lxb_char_t *) "a");
     entry = lxb_tag_data_by_name(tags, (const lxb_char_t *) "abbr", 4);

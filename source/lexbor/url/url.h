@@ -81,6 +81,20 @@ typedef enum {
 }
 lxb_url_state_t;
 
+typedef enum {
+    LXB_URL_MAP_UNDEF         = 0x00,
+    LXB_URL_MAP_C0            = 0x01,
+    LXB_URL_MAP_FRAGMENT      = 0x02,
+    LXB_URL_MAP_QUERY         = 0x04,
+    LXB_URL_MAP_SPECIAL_QUERY = 0x08,
+    LXB_URL_MAP_PATH          = 0x10,
+    LXB_URL_MAP_USERINFO      = 0x20,
+    LXB_URL_MAP_COMPONENT     = 0x40,
+    LXB_URL_MAP_X_WWW_FORM    = 0x80,
+    LXB_URL_MAP_ALL           = 0xff
+}
+lxb_url_map_type_t;
+
 /*
  * New values can only be added downwards.
  * Before LXB_URL_SCHEMEL_TYPE__LAST_ENTRY.
@@ -168,8 +182,34 @@ typedef struct {
     lexbor_plog_t      *log;
 
     lxb_unicode_idna_t *idna;
+
+    lxb_char_t         *buffer;
 }
 lxb_url_parser_t;
+
+/* URLSearchParams */
+
+typedef struct lxb_url_search_entry lxb_url_search_entry_t;
+
+struct lxb_url_search_entry {
+    lexbor_str_t           name;
+    lexbor_str_t           value;
+
+    lxb_url_search_entry_t *next;
+    lxb_url_search_entry_t *prev;
+};
+
+typedef struct {
+    lxb_url_search_entry_t *first;
+    lxb_url_search_entry_t *last;
+    lexbor_mraw_t          *mraw;
+    size_t                 length;
+}
+lxb_url_search_params_t;
+
+typedef lexbor_action_t
+(*lxb_url_search_params_match_f)(lxb_url_search_params_t *sp,
+                                 lxb_url_search_entry_t *entry, void *ctx);
 
 
 /*
@@ -294,6 +334,118 @@ lxb_url_parse_basic(lxb_url_parser_t *parser, lxb_url_t *url,
                     const lxb_url_t *base_url,
                     const lxb_char_t *data, size_t length,
                     lxb_url_state_t override_state, lxb_encoding_t encoding);
+
+/*
+ * IPv6 parser.
+ *
+ * This function is an implementation of IPv6 parsing according to the WHATWG
+ * specification.
+ * https://url.spec.whatwg.org/#concept-ipv6-parser
+ *
+ * The address can be passed both with and without the surrounding square
+ * brackets: "::1" and "[::1]" give the same result. If the opening bracket is
+ * present, the closing one is required.
+ *
+ * The output buffer is zeroed by the function, there is no need to prepare it.
+ * Use the lxb_url_serialize_host_ipv6() function to serialize the result.
+ *
+ * @param[in] lxb_url_parser_t *. Can be NULL.
+ * @param[in] Pointer to the beginning of the data. Not NULL.
+ * @param[in] Length of the data. Can be 0.
+ * @param[out] Buffer for eight (uint16_t[8]) IPv6 pieces. Not NULL. The value
+ * is meaningful only if LXB_STATUS_OK is returned.
+ *
+ * @return LXB_STATUS_OK if successful, otherwise an error status value.
+ */
+LXB_API lxb_status_t
+lxb_url_parse_host_ipv6(lxb_url_parser_t *parser, const lxb_char_t *data,
+                        size_t length, uint16_t *ipv6);
+
+/*
+ * UTF-8 percent-encoder.
+ *
+ * Percent-encodes bytes from data according to url_map and appends the result
+ * to str. A byte is encoded as "%HH" when the result of
+ * (url_map[byte] & enmap) is non-zero. Uppercase hexadecimal digits are used.
+ * If space_as_plus is true, U+0020 SPACE is encoded as '+' before the map is
+ * checked.
+ *
+ * The input is expected to be valid UTF-8; the function does not validate it.
+ *
+ * @param[in] Pointer to UTF-8 data. Not NULL.
+ * @param[in] Length of data. Can be 0.
+ * @param[in, out] Output string. Can be uninitialized (data = NULL). Encoded
+ * data is appended to any existing content. Not NULL.
+ * @param[in] Memory object used to allocate or resize the output string. Not
+ * NULL.
+ * @param[in] Table of 256 entries indexed by input byte, each entry is a bit
+ * mask of lxb_url_map_type_t values. Not NULL.
+ * @param[in] Mask selecting the bytes to percent-encode.
+ * @param[in] Replace U+0020 SPACE with '+' if true.
+ *
+ * @return LXB_STATUS_OK if successful, otherwise an error status value.
+ */
+LXB_API lxb_status_t
+lxb_url_percent_encode_utf_8(const lxb_char_t *data, size_t length,
+                             lexbor_str_t *str, lexbor_mraw_t *mraw,
+                             const uint8_t *url_map, lxb_url_map_type_t enmap,
+                             bool space_as_plus);
+
+/*
+ * Percent-encode after encoding.
+ *
+ * Converts valid UTF-8 data to the specified encoding and appends the
+ * percent-encoded result to str. Each encoded byte for which
+ * (url_map[byte] & enmap) is non-zero is written as "%HH" using uppercase
+ * hexadecimal digits. If a code point cannot be represented in the target
+ * encoding, its percent-encoded numeric character reference is appended.
+ *
+ * The output encoding of the target encoding is used: UTF-16BE, UTF-16LE and
+ * replacement are replaced with UTF-8, see
+ * https://encoding.spec.whatwg.org/#get-an-output-encoding
+ *
+ * If encoding is UTF-8, no conversion is performed. If space_as_plus is true,
+ * an encoded U+0020 SPACE is replaced with '+' before the map is checked.
+ * The input is expected to be valid UTF-8; the function does not validate it.
+ *
+ * @param[in] Pointer to UTF-8 data. Not NULL.
+ * @param[in] Length of data. Can be 0.
+ * @param[in, out] Output string. Can be uninitialized (data = NULL). Encoded
+ * data is appended to any existing content. Not NULL.
+ * @param[in] Memory object used to allocate or resize the output string. Not
+ * NULL.
+ * @param[in] Table of 256 entries indexed by encoded byte, each entry is a bit
+ * mask of lxb_url_map_type_t values. Not NULL.
+ * @param[in] Target encoding. Not NULL.
+ * @param[in] Mask selecting the bytes to percent-encode.
+ * @param[in] Replace an encoded U+0020 SPACE with '+' if true.
+ *
+ * @return LXB_STATUS_OK if successful, otherwise an error status value.
+ */
+LXB_API lxb_status_t
+lxb_url_percent_encode_encoding(const lxb_char_t *data, size_t length,
+                                lexbor_str_t *str, lexbor_mraw_t *mraw,
+                                const uint8_t *url_map,
+                                const lxb_encoding_data_t *encoding,
+                                lxb_url_map_type_t enmap,
+                                bool space_as_plus);
+
+/*
+ * Get the URL percent-encoding map.
+ *
+ * Returns the built-in lookup table for the percent-encode sets defined by the
+ * URL specification. The table contains 256 entries indexed by byte value.
+ * Each entry is a bit mask of the lxb_url_map_type_t sets in which the byte
+ * must be percent-encoded.
+ *
+ * The returned map can be passed to lxb_url_percent_encode_utf_8() or
+ * lxb_url_percent_encode_encoding(). It has static storage duration and must
+ * not be modified or freed.
+ *
+ * @return Pointer to a read-only table of 256 entries. Never NULL.
+ */
+LXB_API const uint8_t *
+lxb_url_get_percent_encoding_map(void);
 
 /*
  * Erase URL.
@@ -464,6 +616,332 @@ lxb_url_serialize_fragment(const lxb_url_t *url,
  */
 LXB_API lxb_url_t *
 lxb_url_clone(lexbor_mraw_t *mraw, const lxb_url_t *url);
+
+/* URLSearchParams */
+
+/*
+ * Initialization of lxb_url_search_params_t object.
+ *
+ * Corresponds to the URLSearchParams interface constructor.
+ * https://url.spec.whatwg.org/#interface-urlsearchparams
+ *
+ * @param[in] lexbor_mraw_t *. Not NULL. Can be taken from lxb_url_t.
+ * @param[in] const lxb_char_t *. Can be NULL. Query.
+ * @param[in] size_t. Can be 0. Length of query.
+ *
+ * @return lxb_url_search_params_t * if successful, otherwise NULL value.
+ */
+LXB_API lxb_url_search_params_t *
+lxb_url_search_params_init(lexbor_mraw_t *mraw,
+                           const lxb_char_t *params, size_t length);
+
+/*
+ * Destroy lxb_url_search_params_t object.
+ *
+ * Corresponds to the URLSearchParams interface constructor.
+ * https://url.spec.whatwg.org/#interface-urlsearchparams
+ *
+ * @param[in] lxb_url_search_params_t *. Not NULL.
+ *
+ * @return NULL value.
+ */
+LXB_API lxb_url_search_params_t *
+lxb_url_search_params_destroy(lxb_url_search_params_t *search_params);
+
+/*
+ * Append a specified key/value pair as a new search parameter.
+ *
+ * Adds a new key-value pair to the end of the search parameters list.
+ * If a parameter with this name already exists, creates a duplicate.
+ * Equivalent to URLSearchParams.prototype.append().
+ * https://url.spec.whatwg.org/#dom-urlsearchparams-append
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] name Parameter. Can be NULL.
+ * @param[in] name_length Length of parameter name. Can be 0.
+ * @param[in] value Parameter. Must not be NULL. Can be NULL.
+ * @param[in] Length of parameter value. Can be 0.
+ *
+ * @return lxb_url_search_entry_t * if successful, otherwise NULL value.
+ */
+LXB_API lxb_url_search_entry_t *
+lxb_url_search_params_append(lxb_url_search_params_t *search_params,
+                             const lxb_char_t *name, size_t name_length,
+                             const lxb_char_t *value, size_t value_length);
+
+/*
+ * Delete search parameters that match a name and value.
+ *
+ * Removes all search parameters that match the specified name and value.
+ * If only name is specified (value == NULL), removes all parameters with
+ * that name.
+ * Equivalent to URLSearchParams.prototype.delete().
+ * https://url.spec.whatwg.org/#dom-urlsearchparams-delete
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] name Parameter. Must not be NULL.
+ * @param[in] name_length Length of parameter name.
+ * @param[in] value Parameter. Can be NULL.
+ * @param[in] Length of parameter value. Can be 0.
+ *
+ * @return void.
+ */
+LXB_API void
+lxb_url_search_params_delete(lxb_url_search_params_t *search_params,
+                             const lxb_char_t *name, size_t name_length,
+                             const lxb_char_t *value, size_t value_length);
+
+/*
+ * Get the first entry object associated with the given search parameter name.
+ *
+ * Returns the first search parameter entry with the specified name.
+ * Useful for obtaining both name and value of the parameter.
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Name of the parameter to find. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ *
+ * @return Pointer to found parameter entry or NULL if parameter not found.
+ */
+LXB_API lxb_url_search_entry_t *
+lxb_url_search_params_get_entry(lxb_url_search_params_t *search_params,
+                                const lxb_char_t *name, size_t length);
+
+/*
+ * Get the first value associated with the given search parameter name.
+ *
+ * Returns the first value associated with the specified search parameter name.
+ * Equivalent to URLSearchParams.prototype.get().
+ * https://url.spec.whatwg.org/#dom-urlsearchparams-get
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Name of the parameter to find. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ *
+ * @return Pointer to string with parameter value or NULL if parameter not found.
+ */
+LXB_API lexbor_str_t *
+lxb_url_search_params_get(lxb_url_search_params_t *search_params,
+                          const lxb_char_t *name, size_t length);
+
+/*
+ * Get all values associated with the given search parameter name.
+ *
+ * Returns all values associated with the specified search parameter name.
+ * Fills the provided buffer with pointers to strings.
+ * Equivalent to URLSearchParams.prototype.getAll().
+ * https://url.spec.whatwg.org/#dom-urlsearchparams-getall
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Name of the parameter to find. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ * @param[out] Buffer for writing pointers to found strings. Must not be NULL.
+ * @param[in] Size of output buffer.
+ *
+ * @return Number of found values or 0 if parameter not found.
+ */
+LXB_API size_t
+lxb_url_search_params_get_all(lxb_url_search_params_t *search_params,
+                              const lxb_char_t *name, size_t length,
+                              lexbor_str_t **out_buf, size_t out_size);
+
+/*
+ * Get the count of values associated with the given search parameter name.
+ *
+ * Returns the number of values associated with the specified search parameter
+ * name. Useful for determining buffer size before calling
+ * lxb_url_search_params_get_all.
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Name of the parameter to find. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ *
+ * @return Number of found values or 0 if parameter not found.
+ */
+LXB_API size_t
+lxb_url_search_params_get_count(lxb_url_search_params_t *search_params,
+                                const lxb_char_t *name, size_t length);
+
+/*
+ * Find an entry that matches with the specified name and, optionally, value,
+ * starting from a given entry.
+ *
+ * Searches for a parameter entry that matches the specified name and,
+ * optionally, value, starting the search from the specified position.
+ * Useful for iterating through duplicate parameters.
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Name of the parameter to find. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ * @param[in] Value of the parameter to find. Can be NULL.
+ * @param[in] Length of parameter value. Can be 0.
+ * @param[in] Entry to start search from. May be NULL to search from beginning.
+ *
+ * @return Pointer to found entry or NULL if no match found.
+ */
+LXB_API lxb_url_search_entry_t *
+lxb_url_search_params_match_entry(lxb_url_search_params_t *search_params,
+                                  const lxb_char_t *name, size_t name_length,
+                                  const lxb_char_t *value, size_t value_length,
+                                  lxb_url_search_entry_t *entry);
+
+/*
+ * Check if a search parameter exists.
+ *
+ * Checks if a search parameter with the specified name and, optionally, value
+ * exists.
+ * If value is specified, checks for existence of specific name-value pair.
+ * Equivalent to URLSearchParams.prototype.has().
+ * https://url.spec.whatwg.org/#dom-urlsearchparams-has
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Name of the parameter to find. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ * @param[in] Value to check for. May be NULL to check only name.
+ * @param[in] Length of parameter value. Can be 0.
+ *
+ * @return true if parameter exists, false otherwise.
+ */
+LXB_API bool
+lxb_url_search_params_has(lxb_url_search_params_t *search_params,
+                          const lxb_char_t *name, size_t name_length,
+                          const lxb_char_t *value, size_t value_length);
+
+/*
+ * Set the value associated with a given search parameter.
+ *
+ * Sets the value for a search parameter with the specified name.
+ * If parameters with this name already exist, removes them all and creates
+ * a new one.
+ * If parameter doesn't exist, creates it.
+ * Equivalent to URLSearchParams.prototype.set().
+ * https://url.spec.whatwg.org/#dom-urlsearchparams-set
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Parameter name to set. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ * @param[in] Parameter value to set. Can be NULL.
+ * @param[in] Length of parameter value. Can be 0.
+ *
+ * @return Pointer to created or updated parameter entry or NULL on error.
+ */
+LXB_API lxb_url_search_entry_t *
+lxb_url_search_params_set(lxb_url_search_params_t *search_params,
+                          const lxb_char_t *name, size_t name_length,
+                          const lxb_char_t *value, size_t value_length);
+
+/*
+ * Iterate through all search parameters that match a name and, optionally,
+ * value.
+ *
+ * Iterates through all search parameters that match the specified name and,
+ * optionally, value, calling the callback function for each found parameter.
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Name of the parameter to find. Must not be NULL.
+ * @param[in] Length of parameter name. Can be 0.
+ * @param[in] Value to search for. May be NULL to search by name only.
+ * @param[in] Length of parameter value. Can be 0.
+ * @param[in] Callback function to process found parameters. Must not be NULL.
+ * @param[in] User context passed to callback function. Can be NULL.
+ *
+ * @return void.
+ */
+LXB_API void
+lxb_url_search_params_match(lxb_url_search_params_t *search_params,
+                            const lxb_char_t *name, size_t name_length,
+                            const lxb_char_t *value, size_t value_length,
+                            lxb_url_search_params_match_f cb, void *ctx);
+
+/*
+ * Sort all key/value pairs by their keys.
+ *
+ * Sorts all key-value pairs in alphabetical order by keys (parameter names).
+ * Equivalent to URLSearchParams.prototype.sort().
+ * https://url.spec.whatwg.org/#dom-urlsearchparams-sort
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ *
+ * @return void.
+ */
+LXB_API void
+lxb_url_search_params_sort(lxb_url_search_params_t *search_params);
+
+/*
+ * Serialize search parameters into a URL query string format.
+ *
+ * Converts all search parameters into a properly encoded query string format
+ * according to the application/x-www-form-urlencoded specification.
+ * The serialized output is passed to the provided callback function.
+ * Equivalent to URLSearchParams.prototype.toString().
+ * https://url.spec.whatwg.org/#concept-urlencoded-serializer
+ *
+ * The callback will be called only once. It will be passed a fully prepared
+ * string.
+ *
+ * @param[in] lxb_url_search_params_t *. Must not be NULL.
+ * @param[in] Callback function to receive serialized data chunks. Not NULL.
+ * @param[in] User context passed to callback function. May be NULL.
+ *
+ * @return LXB_STATUS_OK on success, error status on failure.
+ */
+LXB_API lxb_status_t
+lxb_url_search_params_serialize(lxb_url_search_params_t *search_params,
+                                lexbor_callback_f cb, void *ctx);
+
+/**
+ * Returns whether the URL is special.
+ *
+ * @param[in] lxb_url_t *. Cannot be NULL.
+ * @return true if URL is special, false otherwise.
+ */
+LXB_API bool
+lxb_url_is_special(const lxb_url_t *url);
+
+/*
+ * Reset the URL path to an empty list.
+ *
+ * Frees the path buffer using url->mraw, resets the segment count and clears
+ * the opaque flag. Does nothing if the path buffer is already NULL.
+ *
+ * @param[in, out] URL object. Not NULL.
+ */
+LXB_API void
+lxb_url_path_set_null(lxb_url_t *url);
+
+/*
+ * Set the host to the empty host.
+ *
+ * Frees any domain or opaque host buffer using mraw and sets the host type
+ * to LXB_URL_HOST_TYPE_EMPTY.
+ *
+ * @param[in, out] Host object. Not NULL.
+ * @param[in] Memory object associated with the host. Not NULL.
+ */
+LXB_API void
+lxb_url_host_set_empty(lxb_url_host_t *host, lexbor_mraw_t *mraw);
+
+/*
+ * Set the URL query to null.
+ *
+ * Frees the query buffer using url->mraw. Does nothing if the query
+ * is already null.
+ *
+ * @param[in, out] URL object. Not NULL.
+ */
+LXB_API void
+lxb_url_query_set_null(lxb_url_t *url);
+
+/*
+ * Set the URL fragment to null.
+ *
+ * Frees the fragment buffer using url->mraw. Does nothing if the
+ * fragment is already null.
+ *
+ * @param[in, out] URL object. Not NULL.
+ */
+LXB_API void
+lxb_url_fragment_set_null(lxb_url_t *url);
 
 /*
  * Inline functions.

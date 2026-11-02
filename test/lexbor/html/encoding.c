@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Alexander Borisov
+ * Copyright (C) 2019-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
@@ -143,6 +143,7 @@ check(const char *data, const char *need, size_t idx)
 TEST_BEGIN(by_meta)
 {
     lxb_status_t status;
+    const lxb_char_t *name, *end;
 
     status = check("<meta charset=utf-8>", "utf-8", 0);
     test_eq(status, LXB_STATUS_OK);
@@ -174,10 +175,10 @@ TEST_BEGIN(by_meta)
     status = check("<meta http-equiv=\"content-type\" content=\"text/html; charset=' utf-8 '\">", " utf-8 ", 0);
     test_eq(status, LXB_STATUS_OK);
 
-    status = check("<meta http-equiv=\"content-type\" content=\"text/html; charset='utf-8\">", "utf-8", 0);
+    status = check("<meta http-equiv=\"content-type\" content=\"text/html; charset='utf-8\">", NULL, 0);
     test_eq(status, LXB_STATUS_OK);
 
-    status = check("<meta http-equiv=\"content-type\" content=\"text/html; charset='utf-8   \">", "utf-8   ", 0);
+    status = check("<meta http-equiv=\"content-type\" content=\"text/html; charset='utf-8   \">", NULL, 0);
     test_eq(status, LXB_STATUS_OK);
 
     status = check("<meta http-equiv=\"content-type\" content=\"text/html; charset=windows-1251\">"
@@ -212,6 +213,24 @@ TEST_BEGIN(by_meta)
     test_eq(status, LXB_STATUS_OK);
 
     status = check("<meta charset = 'utf-8'>", "utf-8", 0);
+    test_eq(status, LXB_STATUS_OK);
+
+    status = check("<meta charset1=utf-7>", NULL, 0);
+    test_eq(status, LXB_STATUS_OK);
+
+    status = check("<meta charsett=utf-7>", NULL, 0);
+    test_eq(status, LXB_STATUS_OK);
+
+    name = full_check("<meta http-equiv=\"content-type\" "
+                     "content=\"text/html; charset=windows-1252\" charset=utf-8>",
+                     &end, 0);
+    test_ne(name, NULL);
+    test_eq((size_t) (end - name), 5);
+    test_eq(memcmp(name, "utf-8", 5), 0);
+
+    status = check("<meta charset=utf-8 http-equiv=\"content-type\" "
+                   "content=\"text/html; charset=windows-1252\">",
+                   "utf-8", 0);
     test_eq(status, LXB_STATUS_OK);
 }
 TEST_END

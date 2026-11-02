@@ -1,11 +1,8 @@
 /*
- * Copyright (C) 2018-2020 Alexander Borisov
+ * Copyright (C) 2018-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
-
-#define LEXBOR_TOKENIZER_CHARS_MAP
-#include "lexbor/core/str_res.h"
 
 #include "lexbor/html/tree/insertion_mode.h"
 #include "lexbor/html/tree/open_elements.h"
@@ -16,6 +13,9 @@
 #include "lexbor/html/parser.h"
 #include "lexbor/html/tokenizer/state_rcdata.h"
 
+#ifndef LEXBOR_DISABLE_INTERNAL_EXTERN
+    LXB_EXTERN const unsigned char lexbor_tokenizer_chars_map[256];
+#endif
 
 static bool
 lxb_html_tree_insertion_mode_in_body_anything_else_closed(lxb_html_tree_t *tree,
@@ -59,7 +59,7 @@ bool
 lxb_html_tree_insertion_mode_in_body_skip_new_line_textarea(lxb_html_tree_t *tree,
                                                             lxb_html_token_t *token)
 {
-    tree->mode = tree->original_mode;
+    tree->mode = lxb_html_tree_insertion_mode_text;
 
     if (token->tag_id != LXB_TAG__TEXT) {
         return false;
@@ -158,6 +158,20 @@ lxb_html_tree_insertion_mode_in_body_comment(lxb_html_tree_t *tree,
     if (comment == NULL) {
         tree->status = LXB_STATUS_ERROR_MEMORY_ALLOCATION;
 
+        return lxb_html_tree_process_abort(tree);
+    }
+
+    return true;
+}
+
+lxb_inline bool
+lxb_html_tree_insertion_mode_in_body_processing_instruction(lxb_html_tree_t *tree,
+                                                            lxb_html_token_t *token)
+{
+    lxb_dom_processing_instruction_t *pi;
+
+    pi = lxb_html_tree_insert_processing_instruction(tree, token, NULL);
+    if (pi == NULL) {
         return lxb_html_tree_process_abort(tree);
     }
 
@@ -267,7 +281,11 @@ lxb_html_tree_insertion_mode_in_body_frameset(lxb_html_tree_t *tree,
 
     /* node is HTML */
     node = lxb_html_tree_open_elements_get(tree, 0);
-    lxb_html_tree_open_elements_pop_until_node(tree, node, false);
+
+    tree->status = lxb_html_tree_open_elements_pop_until_node(tree, node, false);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     element = lxb_html_tree_insert_html_element(tree, token);
     if (element == NULL) {
@@ -366,7 +384,10 @@ lxb_html_tree_insertion_mode_in_body_abcdfhmnopsu(lxb_html_tree_t *tree,
     body_node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                                LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (body_node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     element = lxb_html_tree_insert_html_element(tree, token);
@@ -392,7 +413,10 @@ lxb_html_tree_insertion_mode_in_body_h123456(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     node = lxb_html_tree_current_node(tree);
@@ -437,7 +461,10 @@ lxb_html_tree_insertion_mode_in_body_pre_listing(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     element = lxb_html_tree_insert_html_element(tree, token);
@@ -458,13 +485,13 @@ lxb_inline bool
 lxb_html_tree_insertion_mode_in_body_form(lxb_html_tree_t *tree,
                                           lxb_html_token_t *token)
 {
-    lxb_dom_node_t *node, *temp;
+    bool in_template;
+    lxb_dom_node_t *node;
     lxb_html_element_t *element;
 
-    temp = lxb_html_tree_open_elements_find_reverse(tree, LXB_TAG_TEMPLATE,
-                                                    LXB_NS_HTML, NULL);
+    in_template = lxb_html_tree_parsing_template_contents(tree);
 
-    if (tree->form != NULL && temp == NULL) {
+    if (tree->form != NULL && in_template == false) {
         lxb_html_tree_parse_error(tree, token, LXB_HTML_RULES_ERROR_UNTO);
 
         return true;
@@ -473,7 +500,10 @@ lxb_html_tree_insertion_mode_in_body_form(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     element = lxb_html_tree_insert_html_element(tree, token);
@@ -483,7 +513,7 @@ lxb_html_tree_insertion_mode_in_body_form(lxb_html_tree_t *tree,
         return lxb_html_tree_process_abort(tree);
     }
 
-    if (temp == NULL) {
+    if (in_template == false) {
         tree->form = lxb_html_interface_form(element);
     }
 
@@ -519,8 +549,12 @@ lxb_html_tree_insertion_mode_in_body_li(lxb_html_tree_t *tree,
                                           LXB_HTML_RULES_ERROR_UNELINOPELST);
             }
 
-            lxb_html_tree_open_elements_pop_until_tag_id(tree, LXB_TAG_LI,
-                                                         LXB_NS_HTML, true);
+            tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                                LXB_TAG_LI, LXB_NS_HTML, true);
+            if (tree->status != LXB_STATUS_OK) {
+                return lxb_html_tree_process_abort(tree);
+            }
+
             break;
         }
 
@@ -538,7 +572,10 @@ lxb_html_tree_insertion_mode_in_body_li(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     element = lxb_html_tree_insert_html_element(tree, token);
@@ -583,8 +620,12 @@ lxb_html_tree_insertion_mode_in_body_dd_dt(lxb_html_tree_t *tree,
                                           LXB_HTML_RULES_ERROR_UNELINOPELST);
             }
 
-            lxb_html_tree_open_elements_pop_until_tag_id(tree, LXB_TAG_DD,
-                                                         LXB_NS_HTML, true);
+            tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                                LXB_TAG_DD, LXB_NS_HTML, true);
+            if (tree->status != LXB_STATUS_OK) {
+                return lxb_html_tree_process_abort(tree);
+            }
+
             break;
         }
 
@@ -599,8 +640,12 @@ lxb_html_tree_insertion_mode_in_body_dd_dt(lxb_html_tree_t *tree,
                                           LXB_HTML_RULES_ERROR_UNELINOPELST);
             }
 
-            lxb_html_tree_open_elements_pop_until_tag_id(tree, LXB_TAG_DT,
-                                                         LXB_NS_HTML, true);
+            tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                                LXB_TAG_DT, LXB_NS_HTML, true);
+            if (tree->status != LXB_STATUS_OK) {
+                return lxb_html_tree_process_abort(tree);
+            }
+
             break;
         }
 
@@ -618,7 +663,10 @@ lxb_html_tree_insertion_mode_in_body_dd_dt(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     element = lxb_html_tree_insert_html_element(tree, token);
@@ -641,7 +689,10 @@ lxb_html_tree_insertion_mode_in_body_plaintext(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     element = lxb_html_tree_insert_html_element(tree, token);
@@ -672,8 +723,11 @@ lxb_html_tree_insertion_mode_in_body_button(lxb_html_tree_t *tree,
         lxb_html_tree_generate_implied_end_tags(tree, LXB_TAG__UNDEF,
                                                 LXB_NS__UNDEF);
 
-        lxb_html_tree_open_elements_pop_until_tag_id(tree, LXB_TAG_BUTTON,
-                                                     LXB_NS_HTML, true);
+        tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                            LXB_TAG_BUTTON, LXB_NS_HTML, true);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     tree->status = lxb_html_tree_active_formatting_reconstruct_elements(tree);
@@ -723,8 +777,11 @@ lxb_html_tree_insertion_mode_in_body_abcdfhlmnopsu_closed(lxb_html_tree_t *tree,
                                   LXB_HTML_RULES_ERROR_UNELINOPELST);
     }
 
-    lxb_html_tree_open_elements_pop_until_tag_id(tree, token->tag_id,
-                                                 LXB_NS_HTML, true);
+    tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                            token->tag_id, LXB_NS_HTML, true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     return true;
 }
@@ -735,9 +792,7 @@ lxb_html_tree_insertion_mode_in_body_form_closed(lxb_html_tree_t *tree,
 {
     lxb_dom_node_t *node, *current;
 
-    node = lxb_html_tree_open_elements_find_reverse(tree, LXB_TAG_TEMPLATE,
-                                                    LXB_NS_HTML, NULL);
-    if (node == NULL) {
+    if (lxb_html_tree_parsing_template_contents(tree) == false) {
         node = lxb_dom_interface_node(tree->form);
 
         tree->form = NULL;
@@ -789,8 +844,11 @@ lxb_html_tree_insertion_mode_in_body_form_closed(lxb_html_tree_t *tree,
                                   LXB_HTML_RULES_ERROR_UNELINOPELST);
     }
 
-    lxb_html_tree_open_elements_pop_until_tag_id(tree, LXB_TAG_FORM,
-                                                 LXB_NS_HTML, true);
+    tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                            LXB_TAG_FORM, LXB_NS_HTML, true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     return true;
 }
@@ -820,7 +878,10 @@ lxb_html_tree_insertion_mode_in_body_p_closed(lxb_html_tree_t *tree,
         }
     }
 
-    lxb_html_tree_close_p_element(tree, token);
+    tree->status = lxb_html_tree_close_p_element(tree, token);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     return true;
 }
@@ -848,8 +909,11 @@ lxb_html_tree_insertion_mode_in_body_li_closed(lxb_html_tree_t *tree,
                                   LXB_HTML_RULES_ERROR_UNELINOPELST);
     }
 
-    lxb_html_tree_open_elements_pop_until_tag_id(tree, LXB_TAG_LI, LXB_NS_HTML,
-                                                 true);
+    tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                                LXB_TAG_LI, LXB_NS_HTML, true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     return true;
 }
@@ -880,8 +944,11 @@ lxb_html_tree_insertion_mode_in_body_dd_dt_closed(lxb_html_tree_t *tree,
                                   LXB_HTML_RULES_ERROR_UNELINOPELST);
     }
 
-    lxb_html_tree_open_elements_pop_until_tag_id(tree, token->tag_id,
-                                                 LXB_NS_HTML, true);
+    tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                            token->tag_id, LXB_NS_HTML, true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     return true;
 }
@@ -912,7 +979,10 @@ lxb_html_tree_insertion_mode_in_body_h123456_closed(lxb_html_tree_t *tree,
                                   LXB_HTML_RULES_ERROR_UNELINOPELST);
     }
 
-    lxb_html_tree_open_elements_pop_until_h123456(tree);
+    tree->status = lxb_html_tree_open_elements_pop_until_h123456(tree);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     return true;
 }
@@ -938,13 +1008,6 @@ lxb_html_tree_insertion_mode_in_body_a(lxb_html_tree_t *tree,
         if (tree->status != LXB_STATUS_OK) {
             return lxb_html_tree_process_abort(tree);
         }
-
-/*
-        if (is) {
-            return lxb_html_tree_insertion_mode_in_body_anything_else_closed(tree,
-                                                                             token);
-        }
-*/
 
         lxb_html_tree_active_formatting_remove_by_node(tree, node);
         lxb_html_tree_open_elements_remove_by_node(tree, node);
@@ -1003,6 +1066,7 @@ lxb_inline bool
 lxb_html_tree_insertion_mode_in_body_nobr(lxb_html_tree_t *tree,
                                           lxb_html_token_t *token)
 {
+    bool run_any_other_end_tag;
     lxb_dom_node_t *node;
     lxb_html_element_t *element;
 
@@ -1014,21 +1078,22 @@ lxb_html_tree_insertion_mode_in_body_nobr(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_NOBR, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE);
     if (node != NULL) {
-        /* bool is; */
-
         lxb_html_tree_parse_error(tree, token,
                                   LXB_HTML_RULES_ERROR_UNELINSC);
 
-        lxb_html_tree_adoption_agency_algorithm(tree, token, &tree->status);
+        run_any_other_end_tag = lxb_html_tree_adoption_agency_algorithm(tree,
+                                                            token, &tree->status);
         if (tree->status != LXB_STATUS_OK) {
             return lxb_html_tree_process_abort(tree);
         }
-/*
-        if (is) {
-            return lxb_html_tree_insertion_mode_in_body_anything_else_closed(tree,
-                                                                             token);
+
+        if (run_any_other_end_tag) {
+            lxb_html_tree_insertion_mode_in_body_anything_else_closed(tree, token);
+            if (tree->status != LXB_STATUS_OK) {
+                return lxb_html_tree_process_abort(tree);
+            }
         }
-*/
+
         tree->status = lxb_html_tree_active_formatting_reconstruct_elements(tree);
         if (tree->status != LXB_STATUS_OK) {
             return lxb_html_tree_process_abort(tree);
@@ -1057,19 +1122,18 @@ lxb_inline bool
 lxb_html_tree_insertion_mode_in_body_abcefinstu_closed(lxb_html_tree_t *tree,
                                                        lxb_html_token_t *token)
 {
-    /* bool is; */
+    bool run_any_other_end_tag;
 
-    lxb_html_tree_adoption_agency_algorithm(tree, token, &tree->status);
+    run_any_other_end_tag = lxb_html_tree_adoption_agency_algorithm(tree, token,
+                                                                    &tree->status);
     if (tree->status != LXB_STATUS_OK) {
         return lxb_html_tree_process_abort(tree);
     }
 
-/*
-    if (is) {
+    if (run_any_other_end_tag) {
         return lxb_html_tree_insertion_mode_in_body_anything_else_closed(tree,
                                                                          token);
     }
-*/
 
     return true;
 }
@@ -1132,8 +1196,11 @@ lxb_html_tree_insertion_mode_in_body_amo_closed(lxb_html_tree_t *tree,
                                   LXB_HTML_RULES_ERROR_UNELINOPELST);
     }
 
-    lxb_html_tree_open_elements_pop_until_tag_id(tree, token->tag_id,
-                                                 LXB_NS_HTML, true);
+    tree->status = lxb_html_tree_open_elements_pop_until_tag_id(tree,
+                                            token->tag_id, LXB_NS_HTML, true);
+    if (tree->status != LXB_STATUS_OK) {
+        return lxb_html_tree_process_abort(tree);
+    }
 
     lxb_html_tree_active_formatting_up_to_last_marker(tree);
 
@@ -1153,7 +1220,10 @@ lxb_html_tree_insertion_mode_in_body_table(lxb_html_tree_t *tree,
         node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                               LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
         if (node != NULL) {
-            lxb_html_tree_close_p_element(tree, token);
+            tree->status = lxb_html_tree_close_p_element(tree, token);
+            if (tree->status != LXB_STATUS_OK) {
+                return lxb_html_tree_process_abort(tree);
+            }
         }
     }
 
@@ -1211,39 +1281,6 @@ lxb_html_tree_insertion_mode_in_body_br_closed(lxb_html_tree_t *tree,
 }
 
 lxb_inline bool
-lxb_html_tree_insertion_mode_in_body_option_closed(lxb_html_tree_t *tree,
-                                                   lxb_html_token_t *token)
-{
-    bool is;
-    size_t index;
-    lxb_dom_node_t *node;
-    lxb_html_option_element_t *option;
-    lxb_dom_exception_code_t code;
-
-    node = lxb_html_tree_open_elements_find_reverse(tree, LXB_TAG_OPTION,
-                                                    LXB_NS_HTML, &index);
-
-    lxb_html_tree_insertion_mode_in_body_anything_else_closed(tree, token);
-
-    if (node != NULL) {
-        is = lxb_html_tree_open_elements_find_by_node(tree, node, &index);
-
-        if (!is) {
-            option = lxb_html_interface_option(node);
-
-            code = lxb_html_option_maybe_clone_to_selectedcontent(option);
-            if (code != LXB_DOM_EXCEPTION_OK) {
-                tree->status = LXB_STATUS_ERROR;
-
-                return lxb_html_tree_process_abort(tree);
-            }
-        }
-    }
-
-    return true;
-}
-
-lxb_inline bool
 lxb_html_tree_insertion_mode_in_body_input(lxb_html_tree_t *tree,
                                            lxb_html_token_t *token)
 {
@@ -1263,7 +1300,12 @@ lxb_html_tree_insertion_mode_in_body_input(lxb_html_tree_t *tree,
                                           LXB_HTML_TAG_CATEGORY_SCOPE);
     if (node != NULL) {
         lxb_html_tree_parse_error(tree, token, LXB_HTML_RULES_ERROR_SEINSC);
-        lxb_html_tree_open_elements_pop_until_node(tree, node, true);
+
+        tree->status = lxb_html_tree_open_elements_pop_until_node(tree,
+                                                                  node, true);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
 
@@ -1330,7 +1372,10 @@ lxb_html_tree_insertion_mode_in_body_hr(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_SELECT, LXB_NS_HTML,
@@ -1407,7 +1452,10 @@ lxb_html_tree_insertion_mode_in_body_xmp(lxb_html_tree_t *tree,
     node = lxb_html_tree_element_in_scope(tree, LXB_TAG_P, LXB_NS_HTML,
                                           LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON);
     if (node != NULL) {
-        lxb_html_tree_close_p_element(tree, token);
+        tree->status = lxb_html_tree_close_p_element(tree, token);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
     }
 
     tree->status = lxb_html_tree_active_formatting_reconstruct_elements(tree);
@@ -1480,7 +1528,13 @@ lxb_html_tree_insertion_mode_in_body_select(lxb_html_tree_t *tree,
                                           LXB_HTML_TAG_CATEGORY_SCOPE);
     if (node != NULL) {
         lxb_html_tree_parse_error(tree, token, LXB_HTML_RULES_ERROR_SEINSC);
-        lxb_html_tree_open_elements_pop_until_node(tree, node, true);
+
+        tree->status = lxb_html_tree_open_elements_pop_until_node(tree,
+                                                                  node, true);
+        if (tree->status != LXB_STATUS_OK) {
+            return lxb_html_tree_process_abort(tree);
+        }
+
         return true;
     }
 
@@ -1643,7 +1697,7 @@ lxb_html_tree_insertion_mode_in_body_rprt(lxb_html_tree_t *tree,
     node = lxb_html_tree_current_node(tree);
 
     if (lxb_html_tree_node_is(node, LXB_TAG_RTC) == false
-        || lxb_html_tree_node_is(node, LXB_TAG_RUBY) == false)
+        && lxb_html_tree_node_is(node, LXB_TAG_RUBY) == false)
     {
         lxb_html_tree_parse_error(tree, token,
                                   LXB_HTML_RULES_ERROR_MIELINOPELST);
@@ -1798,7 +1852,11 @@ lxb_html_tree_insertion_mode_in_body_anything_else_closed(lxb_html_tree_t *tree,
                                           LXB_HTML_RULES_ERROR_UNELINOPELST);
             }
 
-            lxb_html_tree_open_elements_pop_until_node(tree, list[len], true);
+            tree->status = lxb_html_tree_open_elements_pop_until_node(tree,
+                                                            list[len], true);
+            if (tree->status != LXB_STATUS_OK) {
+                return lxb_html_tree_process_abort(tree);
+            }
 
             return true;
         }
@@ -1906,11 +1964,6 @@ lxb_html_tree_insertion_mode_in_body(lxb_html_tree_t *tree,
             case LXB_TAG_BR:
                 return lxb_html_tree_insertion_mode_in_body_br_closed(tree,
                                                                       token);
-
-            case LXB_TAG_OPTION:
-                return lxb_html_tree_insertion_mode_in_body_option_closed(tree,
-                                                                          token);
-
             default:
                 return lxb_html_tree_insertion_mode_in_body_anything_else_closed(tree,
                                                                                  token);
@@ -1923,6 +1976,10 @@ lxb_html_tree_insertion_mode_in_body(lxb_html_tree_t *tree,
 
         case LXB_TAG__EM_COMMENT:
             return lxb_html_tree_insertion_mode_in_body_comment(tree, token);
+
+        case LXB_TAG__PROCESSINGINSTRUCTION:
+            return lxb_html_tree_insertion_mode_in_body_processing_instruction(tree,
+                                                                               token);
 
         case LXB_TAG__EM_DOCTYPE:
             return lxb_html_tree_insertion_mode_in_body_doctype(tree, token);

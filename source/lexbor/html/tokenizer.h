@@ -21,6 +21,12 @@ extern "C" {
 #include "lexbor/ns/ns.h"
 
 
+enum {
+    LXB_HTML_TOKENIZER_OPT_UNDEF               = 0x00,
+    LXB_HTML_TOKENIZER_OPT_VALIDATE_INPUT      = 1 << 3,
+    LXB_HTML_TOKENIZER_OPT_ATTR_KEEP_DUPLICATE = 1 << 4
+};
+
 /* State */
 typedef const lxb_char_t *
 (*lxb_html_tokenizer_state_f)(lxb_html_tokenizer_t *tkz,
@@ -88,6 +94,10 @@ struct lxb_html_tokenizer {
     lxb_status_t                     status;
     bool                             is_eof;
 
+    /* Input stream validation (for cross-chunk UTF-8). */
+    lxb_char_t                       utf8_buf[4];
+    unsigned                         utf8_buf_len;
+
     lxb_html_tokenizer_t             *base;
     size_t                           ref_count;
 };
@@ -95,8 +105,9 @@ struct lxb_html_tokenizer {
 
 #include "lexbor/html/tokenizer/error.h"
 
-
-extern const lxb_char_t *lxb_html_tokenizer_eof;
+#ifndef LEXBOR_DISABLE_INTERNAL_EXTERN
+    LXB_EXTERN const lxb_char_t *lxb_html_tokenizer_eof;
+#endif
 
 LXB_API lxb_html_tokenizer_t *
 lxb_html_tokenizer_create(void);
@@ -154,6 +165,11 @@ LXB_API void
 lxb_html_tokenizer_set_state_by_tag(lxb_html_tokenizer_t *tkz, bool scripting,
                                     lxb_tag_id_t tag_id, lxb_ns_id_t ns);
 
+LXB_API void
+lxb_html_tokenizer_attr_last_duplicate(lxb_html_tokenizer_t *tkz);
+
+LXB_API void
+lxb_html_tokenizer_validate_close_tag(lxb_html_tokenizer_t *tkz);
 
 /*
  * Inline functions
@@ -248,18 +264,55 @@ lxb_html_tokenizer_mraw(lxb_html_tokenizer_t *tkz)
     return tkz->mraw;
 }
 
+lxb_inline void
+lxb_html_tokenizer_input_validation_set(lxb_html_tokenizer_t *tkz, bool enabled)
+{
+    if (enabled) {
+        tkz->opt |= LXB_HTML_TOKENIZER_OPT_VALIDATE_INPUT;
+    }
+    else {
+        tkz->opt &= ~LXB_HTML_TOKENIZER_OPT_VALIDATE_INPUT;
+    }
+}
+
+lxb_inline void
+lxb_html_tokenizer_keep_duplicate_set(lxb_html_tokenizer_t *tkz, bool keep)
+{
+    if (keep) {
+        tkz->opt |= LXB_HTML_TOKENIZER_OPT_ATTR_KEEP_DUPLICATE;
+    }
+    else {
+        tkz->opt &= ~LXB_HTML_TOKENIZER_OPT_ATTR_KEEP_DUPLICATE;
+    }
+}
+
 lxb_inline lxb_status_t
 lxb_html_tokenizer_temp_realloc(lxb_html_tokenizer_t *tkz, size_t size)
 {
-    size_t length = tkz->pos - tkz->start;
-    size_t new_size = (tkz->end - tkz->start) + size + 4096;
+    size_t length, capacity, new_size;
+    lxb_char_t *start;
 
-    tkz->start = (lxb_char_t *)lexbor_realloc(tkz->start, new_size);
-    if (tkz->start == NULL) {
+    length = tkz->pos - tkz->start;
+    capacity = tkz->end - tkz->start;
+
+    if (capacity > SIZE_MAX - 4096 || size > SIZE_MAX - capacity - 4096) {
         tkz->status = LXB_STATUS_ERROR_MEMORY_ALLOCATION;
         return tkz->status;
     }
 
+    new_size = capacity + size + 4096;
+
+    if (capacity <= SIZE_MAX / 2 && new_size < capacity * 2) {
+        new_size = capacity * 2;
+    }
+
+    start = (lxb_char_t *) lexbor_realloc(tkz->start, new_size);
+    if (start == NULL) {
+        tkz->status = LXB_STATUS_ERROR_MEMORY_ALLOCATION;
+        return tkz->status;
+    }
+
+    tkz->start = start;
     tkz->pos = tkz->start + length;
     tkz->end = tkz->start + new_size;
 
@@ -272,7 +325,7 @@ lxb_html_tokenizer_temp_append_data(lxb_html_tokenizer_t *tkz,
 {
     size_t size = data - tkz->begin;
 
-    if ((tkz->pos + size) > tkz->end) {
+    if (size > (size_t)(tkz->end - tkz->pos)) {
         if(lxb_html_tokenizer_temp_realloc(tkz, size)) {
             return tkz->status;
         }
@@ -287,7 +340,7 @@ lxb_inline lxb_status_t
 lxb_html_tokenizer_temp_append(lxb_html_tokenizer_t *tkz,
                                const lxb_char_t *data, size_t size)
 {
-    if ((tkz->pos + size) > tkz->end) {
+    if (size > (size_t)(tkz->end - tkz->pos)) {
         if(lxb_html_tokenizer_temp_realloc(tkz, size)) {
             return tkz->status;
         }
@@ -329,11 +382,19 @@ LXB_API void
 lxb_html_tokenizer_tree_set_noi(lxb_html_tokenizer_t *tkz,
                                 lxb_html_tree_t *tree);
 
+LXB_API void
+lxb_html_tokenizer_input_validation_set_noi(lxb_html_tokenizer_t *tkz,
+                                            bool enabled);
+
 LXB_API lexbor_mraw_t *
 lxb_html_tokenizer_mraw_noi(lxb_html_tokenizer_t *tkz);
 
 LXB_API lexbor_hash_t *
 lxb_html_tokenizer_tags_noi(lxb_html_tokenizer_t *tkz);
+
+LXB_API void
+lxb_html_tokenizer_keep_duplicate_set_noi(lxb_html_tokenizer_t *tkz,
+                                          bool keep);
 
 
 #ifdef __cplusplus

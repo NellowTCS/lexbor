@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Alexander Borisov
+ * Copyright (C) 2018-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
@@ -7,6 +7,28 @@
 #include "lexbor/html/tree/open_elements.h"
 #include "lexbor/html/tree.h"
 
+#include "lexbor/html/interfaces/option_element.h"
+#include "lexbor/html/tree/open_elements_res.h"
+
+
+lxb_inline lxb_status_t
+lxb_html_tree_open_elements_pop_cb(lxb_dom_node_t *node)
+{
+    lxb_html_document_open_elements_pop_f pop_cb;
+
+    if (node->local_name > LXB_TAG__TEXT
+        && node->local_name < LXB_TAG__LAST_ENTRY
+        && node->ns == LXB_NS_HTML)
+    {
+        pop_cb = lxb_html_interface_document(node->owner_document)->open_pop[node->local_name];
+
+        if (pop_cb != NULL) {
+            return pop_cb(node);
+        }
+    }
+
+    return LXB_STATUS_OK;
+}
 
 LXB_API void
 lxb_html_tree_open_elements_remove_by_node(lxb_html_tree_t *tree,
@@ -26,19 +48,25 @@ lxb_html_tree_open_elements_remove_by_node(lxb_html_tree_t *tree,
 
             tree->open_elements->length--;
 
+            lxb_html_tree_open_elements_changed_at(tree, len);
+
             break;
         }
     }
 }
 
-void
+lxb_status_t
 lxb_html_tree_open_elements_pop_until_tag_id(lxb_html_tree_t *tree,
                                              lxb_tag_id_t tag_id,
                                              lxb_ns_id_t ns,
                                              bool exclude)
 {
-    void **list = tree->open_elements->list;
+    void **list;
+    unsigned status;
     lxb_dom_node_t *node;
+
+    list = tree->open_elements->list;
+    status = LXB_STATUS_OK;
 
     while (tree->open_elements->length != 0) {
         tree->open_elements->length--;
@@ -49,22 +77,35 @@ lxb_html_tree_open_elements_pop_until_tag_id(lxb_html_tree_t *tree,
             if (exclude == false) {
                 tree->open_elements->length++;
             }
+            else {
+                status |= (unsigned) lxb_html_tree_open_elements_pop_cb(node);
+            }
 
             break;
         }
+
+        status |= (unsigned) lxb_html_tree_open_elements_pop_cb(node);
     }
+
+    return (status == LXB_STATUS_OK) ? LXB_STATUS_OK : LXB_STATUS_ERROR;
 }
 
-void
+lxb_status_t
 lxb_html_tree_open_elements_pop_until_h123456(lxb_html_tree_t *tree)
 {
-    void **list = tree->open_elements->list;
+    void **list;
+    unsigned status;
     lxb_dom_node_t *node;
+
+    list = tree->open_elements->list;
+    status = LXB_STATUS_OK;
 
     while (tree->open_elements->length != 0) {
         tree->open_elements->length--;
 
         node = list[ tree->open_elements->length ];
+
+        status |= (unsigned) lxb_html_tree_open_elements_pop_cb(node);
 
         switch (node->local_name) {
             case LXB_TAG_H1:
@@ -74,7 +115,9 @@ lxb_html_tree_open_elements_pop_until_h123456(lxb_html_tree_t *tree)
             case LXB_TAG_H5:
             case LXB_TAG_H6:
                 if (node->ns == LXB_NS_HTML) {
-                    return;
+                    return (status == LXB_STATUS_OK)
+                            ? LXB_STATUS_OK
+                            : LXB_STATUS_ERROR;
                 }
 
                 break;
@@ -83,24 +126,34 @@ lxb_html_tree_open_elements_pop_until_h123456(lxb_html_tree_t *tree)
                 break;
         }
     }
+
+    return (status == LXB_STATUS_OK) ? LXB_STATUS_OK : LXB_STATUS_ERROR;
 }
 
-void
+lxb_status_t
 lxb_html_tree_open_elements_pop_until_td_th(lxb_html_tree_t *tree)
 {
-    void **list = tree->open_elements->list;
+    void **list;
+    unsigned status;
     lxb_dom_node_t *node;
+
+    list = tree->open_elements->list;
+    status = LXB_STATUS_OK;
 
     while (tree->open_elements->length != 0) {
         tree->open_elements->length--;
 
         node = list[ tree->open_elements->length ];
 
+        status |= (unsigned) lxb_html_tree_open_elements_pop_cb(node);
+
         switch (node->local_name) {
             case LXB_TAG_TD:
             case LXB_TAG_TH:
                 if (node->ns == LXB_NS_HTML) {
-                    return;
+                    return (status == LXB_STATUS_OK)
+                                ? LXB_STATUS_OK
+                                : LXB_STATUS_ERROR;
                 }
 
                 break;
@@ -109,37 +162,72 @@ lxb_html_tree_open_elements_pop_until_td_th(lxb_html_tree_t *tree)
                 break;
         }
     }
+
+    return (status == LXB_STATUS_OK) ? LXB_STATUS_OK : LXB_STATUS_ERROR;
 }
 
-void
+lxb_status_t
 lxb_html_tree_open_elements_pop_until_node(lxb_html_tree_t *tree,
                                            lxb_dom_node_t *node,
                                            bool exclude)
 {
-    void **list = tree->open_elements->list;
+    void **list;
+    unsigned status;
+    lxb_dom_node_t *poped;
+
+    list = tree->open_elements->list;
+    status = LXB_STATUS_OK;
 
     while (tree->open_elements->length != 0) {
-        tree->open_elements->length--;
+        poped = list[ --tree->open_elements->length ];
 
-        if (list[ tree->open_elements->length ] == node) {
+        if (poped == node) {
             if (exclude == false) {
                 tree->open_elements->length++;
+            }
+            else {
+                status |= (unsigned) lxb_html_tree_open_elements_pop_cb(poped);
             }
 
             break;
         }
+
+        status |= (unsigned) lxb_html_tree_open_elements_pop_cb(poped);
     }
+
+    return (status == LXB_STATUS_OK) ? LXB_STATUS_OK : LXB_STATUS_ERROR;
 }
 
-void
-lxb_html_tree_open_elements_pop_until(lxb_html_tree_t *tree, size_t idx,
-                                      bool exclude)
+lxb_status_t
+lxb_html_tree_open_elements_pop_all(lxb_html_tree_t *tree)
 {
-    tree->open_elements->length = idx;
+    void **list;
+    unsigned status;
+    lxb_dom_node_t *node;
 
-    if (exclude == false) {
-        tree->open_elements->length++;
+    list = tree->open_elements->list;
+    status = LXB_STATUS_OK;
+
+    while (tree->open_elements->length != 0) {
+        node = list[ --tree->open_elements->length ];
+        status |= (unsigned) lxb_html_tree_open_elements_pop_cb(node);
     }
+
+    return (status == LXB_STATUS_OK) ? LXB_STATUS_OK : LXB_STATUS_ERROR;
+}
+
+lxb_dom_node_t *
+lxb_html_tree_open_elements_pop(lxb_html_tree_t *tree)
+{
+    lxb_dom_node_t *node;
+
+    node = (lxb_dom_node_t *) lexbor_array_pop(tree->open_elements);
+
+    if (node != NULL) {
+        lxb_html_tree_open_elements_pop_cb(node);
+    }
+
+    return node;
 }
 
 bool
@@ -248,4 +336,62 @@ lxb_html_tree_open_elements_find_reverse(lxb_html_tree_t *tree,
     }
 
     return NULL;
+}
+
+bool
+lxb_html_tree_open_elements_p_in_button_scope(lxb_html_tree_t *tree)
+{
+    bool *p_scope;
+    bool in_scope;
+    size_t idx, size;
+    lxb_dom_node_t *node;
+
+    size_t len = tree->open_elements->length;
+    void **list = tree->open_elements->list;
+
+    if (len == 0) {
+        return false;
+    }
+
+    idx = tree->p_scope_valid;
+
+    if (idx >= len) {
+        tree->p_scope_valid = len;
+
+        return tree->p_scope[len - 1];
+    }
+
+    if (len > tree->p_scope_size) {
+        size = tree->open_elements->size;
+
+        p_scope = lexbor_realloc(tree->p_scope, sizeof(bool) * size);
+        if (p_scope == NULL) {
+            /* The caller falls back to walking the stack. */
+            return true;
+        }
+
+        tree->p_scope = p_scope;
+        tree->p_scope_size = size;
+    }
+
+    in_scope = (idx != 0) ? tree->p_scope[idx - 1] : false;
+
+    for (; idx < len; idx++) {
+        node = list[idx];
+
+        if (node->local_name == LXB_TAG_P && node->ns == LXB_NS_HTML) {
+            in_scope = true;
+        }
+        else if (lxb_html_tag_is_category(node->local_name, node->ns,
+                                          LXB_HTML_TAG_CATEGORY_SCOPE_BUTTON))
+        {
+            in_scope = false;
+        }
+
+        tree->p_scope[idx] = in_scope;
+    }
+
+    tree->p_scope_valid = len;
+
+    return in_scope;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Alexander Borisov
+ * Copyright (C) 2022-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
@@ -42,7 +42,7 @@ TEST_BEGIN(fixed_svg_tags)
     static const lxb_char_t html[] = "<svg><a xlink:title>";
     static const size_t length = sizeof(html) - 1;
 
-    static const lxb_char_t res[] = "<svg><a xlink:title></a></svg>";
+    static const lxb_char_t res[] = "<svg><a xlink:title=\"\"></a></svg>";
     static const size_t res_length = sizeof(res) - 1;
 
     document = lxb_html_document_create();
@@ -125,6 +125,85 @@ TEST_BEGIN(duplicate_attributes_svg_namespace)
 }
 TEST_END
 
+TEST_BEGIN(select_size_value_attribute_is_null)
+{
+    lxb_status_t status;
+    lxb_html_document_t *document;
+
+    static const lxb_char_t html[] = "<!doctype html><select size>"
+        "<option>a</option></select>";
+    static const size_t length = sizeof(html) - 1;
+
+    document = lxb_html_document_create();
+    test_ne(document, NULL);
+
+    status = lxb_html_document_parse(document, html, length);
+    test_eq(status, LXB_STATUS_OK);
+
+    lxb_html_document_destroy(document);
+}
+TEST_END
+
+TEST_BEGIN(ruby_rp_rt)
+{
+    lxb_status_t status;
+    lxb_html_parser_t *parser;
+    lexbor_array_obj_t *arr;
+    lxb_html_document_t *document;
+
+    static const lxb_char_t html[] = "<!DOCTYPE html><ruby><rp></rp><rt></rt></ruby>";
+    size_t html_len = sizeof(html) - 1;
+
+    /* Initialization */
+    parser = lxb_html_parser_create();
+    status = lxb_html_parser_init(parser);
+    test_eq(status, LXB_STATUS_OK);
+
+    /* Parse */
+    document = lxb_html_parse(parser, html, html_len);
+    test_ne(document, NULL);
+
+    arr = parser->tree->parse_errors;
+
+    test_eq(arr->length, 0);
+
+    /* Destroy parser */
+    lxb_html_parser_destroy(parser);
+    /* Destroy document */
+    lxb_html_document_destroy(document);
+}
+TEST_END
+
+TEST_BEGIN(rp_rt)
+{
+    lxb_status_t status;
+    lxb_html_parser_t *parser;
+    lexbor_array_obj_t *arr;
+    lxb_html_document_t *document;
+
+    static const lxb_char_t html[] = "<!DOCTYPE html><rp></rp><rt></rt>";
+    size_t html_len = sizeof(html) - 1;
+
+    /* Initialization */
+    parser = lxb_html_parser_create();
+    status = lxb_html_parser_init(parser);
+    test_eq(status, LXB_STATUS_OK);
+
+    /* Parse */
+    document = lxb_html_parse(parser, html, html_len);
+    test_ne(document, NULL);
+
+    arr = parser->tree->parse_errors;
+
+    test_eq(arr->length, 2);
+
+    /* Destroy parser */
+    lxb_html_parser_destroy(parser);
+    /* Destroy document */
+    lxb_html_document_destroy(document);
+}
+TEST_END
+
 int
 main(int argc, const char * argv[])
 {
@@ -133,6 +212,9 @@ main(int argc, const char * argv[])
     TEST_ADD(fixed_svg_tags);
     TEST_ADD(bad_html_remove_attributes);
     TEST_ADD(duplicate_attributes_svg_namespace);
+    TEST_ADD(select_size_value_attribute_is_null);
+    TEST_ADD(ruby_rp_rt);
+    TEST_ADD(rp_rt);
 
     TEST_RUN("lexbor/html/other");
     TEST_RELEASE();

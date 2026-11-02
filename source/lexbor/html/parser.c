@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Alexander Borisov
+ * Copyright (C) 2018-2026 Alexander Borisov
  *
  * Author: Alexander Borisov <borisov@lexbor.com>
  */
@@ -13,9 +13,10 @@
 #include "lexbor/html/tree/template_insertion.h"
 #include "lexbor/html/tree/insertion_mode.h"
 
-#define LXB_HTML_TAG_RES_DATA
-#define LXB_HTML_TAG_RES_SHS_DATA
-#include "lexbor/html/tag_res.h"
+#ifndef LEXBOR_DISABLE_INTERNAL_EXTERN
+    LXB_EXTERN lxb_html_tag_category_t lxb_html_tag_res_cats[LXB_TAG__LAST_ENTRY][LXB_NS__LAST_ENTRY];
+    LXB_EXTERN lxb_html_tag_fixname_t lxb_html_tag_res_fixname_svg[LXB_TAG__LAST_ENTRY];
+#endif
 
 
 static void
@@ -42,6 +43,8 @@ lxb_html_parser_init(lxb_html_parser_t *parser)
     if (status != LXB_STATUS_OK) {
         return status;
     }
+
+    lxb_html_tokenizer_keep_duplicate_set(parser->tkz, true);
 
     /* Tree */
     parser->tree = lxb_html_tree_create();
@@ -199,6 +202,7 @@ lxb_html_parse_fragment_chunk_begin(lxb_html_parser_t *parser,
     if (document == NULL) {
         doc->scripting = parser->tree->scripting;
         doc->compat_mode = LXB_DOM_DOCUMENT_CMODE_NO_QUIRKS;
+        doc->options = parser->dom_opt;
     }
 
     lxb_html_tokenizer_set_state_by_tag(parser->tkz, doc->scripting, tag_id, ns);
@@ -339,7 +343,9 @@ lxb_html_parse_fragment_chunk_destroy(lxb_html_parser_t *parser)
         parser->tree->fragment = NULL;
     }
 
-    if (lxb_html_document_is_original(parser->tree->document) == false) {
+    if (parser->tree->document != NULL
+        && lxb_html_document_is_original(parser->tree->document) == false)
+    {
         if (parser->root != NULL) {
             doc = lxb_dom_interface_node(parser->tree->document)->owner_document;
             parser->root->parent = &doc->node;
@@ -390,6 +396,7 @@ lxb_html_parse_chunk_begin(lxb_html_parser_t *parser)
     }
 
     document->dom_document.scripting = parser->tree->scripting;
+    document->dom_document.options = parser->dom_opt;
 
     parser->status = lxb_html_parse_chunk_prepare(parser, document);
     if (parser->status != LXB_STATUS_OK) {
@@ -423,6 +430,13 @@ lxb_html_parse_chunk_end(lxb_html_parser_t *parser)
     }
 
     parser->status = lxb_html_tree_end(parser->tree);
+
+    if (parser->status == LXB_STATUS_OK) {
+        parser->status = lxb_html_tree_open_elements_pop_all(parser->tree);
+    }
+    else {
+        (void) lxb_html_tree_open_elements_pop_all(parser->tree);
+    }
 
     lxb_html_tokenizer_tree_set(parser->tkz, parser->original_tree);
 
@@ -468,4 +482,17 @@ void
 lxb_html_parser_scripting_set_noi(lxb_html_parser_t *parser, bool scripting)
 {
     lxb_html_parser_scripting_set(parser, scripting);
+}
+
+lxb_dom_document_opt_t
+lxb_html_parser_dom_opt_noi(lxb_html_parser_t *parser)
+{
+    return lxb_html_parser_dom_opt(parser);
+}
+
+void
+lxb_html_parser_dom_opt_set_noi(lxb_html_parser_t *parser,
+                                 lxb_dom_document_opt_t opt)
+{
+    lxb_html_parser_dom_opt_set(parser, opt);
 }
